@@ -1,0 +1,11 @@
+# Dependencies
+node_modules/
+
+# macOS
+.DS_Store
+
+# JetBrains IDE (WebStorm)
+.idea/
+
+# Logs
+*.log

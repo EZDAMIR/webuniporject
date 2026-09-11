@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Order and delivery request form for the Kamzina 199 building materials store."
+    />
+    <meta name="author" content="Damir Shuitinov" />
+    <title>Order and Delivery Request</title>
+    <!-- Author: Damir Shuitinov -->
+  </head>
+  <body>
+    <header>
+      <p><strong>Kamzina 199 Building Materials Store</strong></p>
+      <nav aria-label="Main navigation">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="products.html">Products and prices</a></li>
+          <li><a href="order.html">Order and delivery</a></li>
+          <li><a href="colophon.html">Colophon</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h1>Request an order or delivery</h1>
+      <p>
+        Use this form to describe the materials you need and your preferred collection or delivery
+        date. Measure the project first, then enter the quantity in the unit shown in the catalogue.
+        For mixed orders, choose the main category and list the remaining items in the notes. A team
+        member can confirm stock, final quantities and transport details by telephone. Delivery is
+        arranged within Pavlodar, while customers may also collect prepared orders from Kamzina
+        Street 199.
+      </p>
+
+      <section>
+        <h2>Before completing the form</h2>
+        <p>
+          Check product dimensions carefully. Heavy or long items may need special transport and
+          help with unloading. Keep your phone nearby after making the request. If the order is
+          urgent, call <a href="tel:+77771320474">+7 777 132-04-74</a> during opening hours. The
+          store accepts cash, card and QR payment, but payment is arranged only after the order
+          details are confirmed.
+        </p>
+      </section>
+
+      <section>
+        <h2>Order request form</h2>
+        <form method="get" action="order.html">
+          <!-- This form has no server-side handler yet; submitting it only reloads this local page with form values in the URL. -->
+          <fieldset>
+            <legend>Customer and order details</legend>
+
+            <p>
+              <label for="customer-name">Full name</label><br />
+              <input
+                type="text"
+                id="customer-name"
+                name="customer-name"
+                placeholder="Your full name"
+                required
+              />
+            </p>
+
+            <p>
+              <label for="customer-email">Email</label><br />
+              <input
+                type="email"
+                id="customer-email"
+                name="customer-email"
+                placeholder="name@example.com"
+                required
+              />
+            </p>
+
+            <p>
+              <label for="customer-phone">Telephone</label><br />
+              <input
+                type="tel"
+                id="customer-phone"
+                name="customer-phone"
+                placeholder="+7 700 000 00 00"
+                required
+              />
+            </p>
+
+            <p>
+              <label for="quantity">Quantity</label><br />
+              <input type="number" id="quantity" name="quantity" min="1" placeholder="1" required />
+            </p>
+
+            <p>
+              <label for="preferred-date">Preferred date</label><br />
+              <input type="date" id="preferred-date" name="preferred-date" required />
+            </p>
+
+            <p>
+              <label for="category">Main product category</label><br />
+              <select id="category" name="category" required>
+                <option value="">Choose a category</option>
+                <option value="dry-mixtures">Dry mixtures</option>
+                <option value="sheet-materials">Sheet materials</option>
+                <option value="insulation">Insulation</option>
+                <option value="paint">Paint and varnish</option>
+                <option value="fasteners">Fasteners</option>
+              </select>
+            </p>
+
+            <p>
+              Order method<br />
+              <input type="radio" id="collection" name="order-method" value="collection" required />
+              <label for="collection">Collection</label>
+              <input type="radio" id="delivery" name="order-method" value="delivery" />
+              <label for="delivery">Delivery in Pavlodar</label>
+            </p>
+
+            <p>
+              <label for="notes">Products, specifications and delivery address</label><br />
+              <textarea
+                id="notes"
+                name="notes"
+                rows="6"
+                cols="45"
+                placeholder="List each product, size and quantity"
+                required
+              ></textarea>
+            </p>
+
+            <p>
+              <input type="checkbox" id="confirmation" name="confirmation" required />
+              <label for="confirmation"
+                >I confirm that the shop may call me about this request.</label
+              >
+            </p>
+
+            <!-- This div groups two generic action controls; no sectioning or content-specific semantic element fits this pair. -->
+            <div>
+              <button type="submit">Submit request</button>
+              <button type="reset">Clear form</button>
+            </div>
+          </fieldset>
+        </form>
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        Daily 08:00-18:00; winter 08:30-17:00<br />Phone:
+        <a href="tel:+77771320474">+7 777 132-04-74</a>
+      </p>
+      <p>&copy; 2026 Kamzina 199 Building Materials Store</p>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="How the Kamzina 199 building materials website was planned and written in HTML."
+    />
+    <meta name="author" content="Damir Shuitinov" />
+    <title>Colophon for the Kamzina 199 Website</title>
+    <!-- Author: Damir Shuitinov -->
+  </head>
+  <body>
+    <header>
+      <p><strong>Kamzina 199 Building Materials Store</strong></p>
+      <nav aria-label="Main navigation">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="products.html">Products and prices</a></li>
+          <li><a href="order.html">Order and delivery</a></li>
+          <li><a href="colophon.html">Colophon</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h1>How this website was made</h1>
+      <p>
+        I built four local HTML files with no CSS, JavaScript, framework or template. Each file
+        includes an HTML5 doctype, language, character encoding, viewport, description and author
+        information. Repeated navigation makes every page predictable. The home page introduces the
+        store, the product page compares materials, and the order page collects a request.
+      </p>
+
+      <section>
+        <h2>Markup decisions</h2>
+        <p>
+          I used semantic elements where their meaning matched the content. For example,
+          <code>&lt;article&gt;</code> holds advice that can stand alone, while
+          <code>&lt;aside&gt;</code> holds supporting customer information. The price grid is a real
+          data table, not a group of generic boxes. One <code>&lt;div&gt;</code> groups the form
+          buttons because that pair has no more specific semantic meaning.
+        </p>
+        <!-- Pre preserves spaces and line breaks so the short markup example remains readable. -->
+        <pre><code>&lt;main&gt;
+  &lt;h1&gt;Page topic&lt;/h1&gt;
+  &lt;section&gt;Related content&lt;/section&gt;
+&lt;/main&gt;</code></pre>
+        <p>
+          To open the project, press <kbd>Ctrl</kbd> + <kbd>O</kbd> in a browser and choose
+          <code>index.html</code>. A validator should return a result such as
+          <samp>Document checking completed. No errors or warnings to show.</samp>
+        </p>
+      </section>
+
+      <!-- The sources section is kept separate from the markup-decisions section because its topic — provenance of business facts and photographs — is distinct and can stand alone. -->
+      <section>
+        <h2>Sources and maintenance</h2>
+        <p>
+          Business facts came from the shop’s <cite>2GIS listing</cite>, where its category appears
+          as <i lang="ru">Стройматериалы</i>. Price research was checked against Kazakhstan
+          retailers on 12 September 2026. The comparison for Task A was
+          <cite>Megastroy Kazakhstan</cite>; its published contact is
+          <a href="mailto:ast.spravka@megastroy.kz">ast.spravka@megastroy.kz</a>. Prices should be
+          reviewed before each semester update because retail values change. I took almost all the
+          shop photographs myself while working there as a school student; copies were retrieved
+          from its 2GIS gallery.
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      <p>Created by Damir Shuitinov<br />Phone: <a href="tel:+77771320474">+7 777 132-04-74</a></p>
+      <p>&copy; 2026 Kamzina 199 Building Materials Store</p>
+    </footer>
+  </body>
+</html>
