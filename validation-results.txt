@@ -1,0 +1,5 @@
+Local Nu Html Checker (v.Nu) validation
+Date: 13 September 2026
+Files: index.html, products.html, order.html, colophon.html
+Command: java -jar vnu.jar --errors-only --format text index.html products.html order.html colophon.html
+Result: Document checking completed. No errors found.
