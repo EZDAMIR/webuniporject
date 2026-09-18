@@ -43,8 +43,6 @@ header {
 }
 
 main {
-  max-width: 1100px;
-  margin: 2rem auto;
   padding: 0 1.5rem;
 }
 
@@ -69,11 +67,16 @@ h2 + p {
   margin-top: 0.25rem;
 }
 
-/* --- Class selectors: site structure ------------------------------- */
+/* --- Flexbox #1: site header --------------------------------------- */
 .site-header {
   background-color: #2c3e50;
   padding: 1rem 2rem;
   position: relative;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .store-brand {
@@ -82,15 +85,22 @@ h2 + p {
   font-weight: 700;
   color: rgb(245, 245, 240);
   text-decoration: none;
-  margin-bottom: 0.5rem;
+  flex: 1 1 auto;
 }
 
 .main-nav {
-  margin-top: 0.25rem;
+  flex: 0 0 auto;
 }
 
+/* --- Flexbox #2: nav list ----------------------------------------- */
 .nav-list {
   list-style: none;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .nav-link {
@@ -119,13 +129,16 @@ h2::before {
   vertical-align: middle;
 }
 
+/* --- Grid #1: footer centering ------------------------------------- */
 .site-footer {
   background-color: #2c3e50;
   border-top: 1px solid rgba(44, 62, 80, 0.2);
   color: rgb(245, 245, 240);
   padding: 1.25rem 2rem;
   font-size: 0.875rem;
-  text-align: center;
+  display: grid;
+  justify-items: center;
+  gap: 0.4rem;
 }
 
 /* --- Typography ----------------------------------------------------- */
@@ -181,6 +194,47 @@ small {
   content: "";
   display: block;
   clear: both;
+}
+
+/* --- Grid #2: page-main layout (index, order, colophon) ------------ */
+.page-main {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  gap: 1.5rem;
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+}
+
+/* All direct children span both columns so pages remain single-column */
+.page-main > h1,
+.page-main > p,
+.page-main > section,
+.page-main > form {
+  grid-column: 1 / -1;
+}
+
+/* --- Grid #3: products-main layout --------------------------------- */
+.products-main {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  gap: 2rem;
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+}
+
+.products-main > h1,
+.products-main > p,
+.products-main > section,
+.products-main > article,
+.products-main > hr {
+  grid-column: 1 / -1;
+}
+
+/* min-width: 0 prevents a grid item from overflowing its column */
+.products-main > .store-photo {
+  min-width: 0;
 }
 
 /* --- Info sections ------------------------------------------------- */
@@ -332,10 +386,16 @@ button:hover {
   opacity: 0.88;
 }
 
+/* Flexbox for action buttons row */
 .action-buttons {
   margin-top: 1rem;
-  gap: 0.75rem;
   display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.action-buttons button {
+  flex: 1 1 auto;
 }
 
 /* --- Rich content -------------------------------------------------- */
