@@ -67,7 +67,7 @@ h2 + p {
   margin-top: 0.25rem;
 }
 
-/* --- Flexbox #1: site header --------------------------------------- */
+/* --- Flexbox #1: site header (centering method: Flexbox align-items) */
 .site-header {
   background-color: #2c3e50;
   padding: 1rem 2rem;
@@ -129,7 +129,7 @@ h2::before {
   vertical-align: middle;
 }
 
-/* --- Grid #1: footer centering ------------------------------------- */
+/* --- Grid centering: footer (centering method: Grid justify-items) - */
 .site-footer {
   background-color: #2c3e50;
   border-top: 1px solid rgba(44, 62, 80, 0.2);
@@ -196,7 +196,8 @@ small {
   clear: both;
 }
 
-/* --- Grid #2: page-main layout (index, order, colophon) ------------ */
+/* --- Grid #2: page-main layout (index, order, colophon)
+       Centering method: margin auto via max-width and margin: auto ---- */
 .page-main {
   display: grid;
   grid-template-columns: repeat(2, minmax(280px, 1fr));
@@ -237,13 +238,17 @@ small {
   min-width: 0;
 }
 
-/* --- Info sections ------------------------------------------------- */
+/* --- Positioning ---------------------------------------------------- */
+
+/* position: static — default; stated explicitly to label the concept */
 .info-section {
+  position: static;
   margin: 1.5rem 0;
 }
 
-/* --- Store photos -------------------------------------------------- */
+/* position: relative — creates a positioning context for the figcaption */
 .store-photo {
+  position: relative;
   margin: 1rem 0;
   border: 2px solid #2c3e50;
   border-radius: 4px;
@@ -256,11 +261,44 @@ small {
   height: auto;
 }
 
+/* position: absolute — overlays figcaption at the bottom of its figure */
 .store-photo figcaption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(44, 62, 80, 0.85);
+  color: rgb(245, 245, 240);
   font-size: 0.825rem;
-  color: rgba(44, 62, 80, 0.75);
   padding: 0.4rem 0.6rem;
-  background-color: rgb(245, 245, 240);
+}
+
+/* position: fixed — call button stays in the viewport corner */
+.fixed-call {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  background-color: #e74c3c;
+  color: rgb(245, 245, 240);
+  padding: 0.6rem 1.1rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: none;
+  z-index: 100;
+}
+
+.fixed-call:hover {
+  background-color: rgba(231, 76, 60, 0.85);
+}
+
+/* --- Float and clear ----------------------------------------------- */
+.float-right {
+  float: right;
+  margin: 0 0 1rem 1.5rem;
+  max-width: 42%;
+  height: auto;
+  border-radius: 3px;
 }
 
 /* --- Product content ----------------------------------------------- */
@@ -433,8 +471,11 @@ pre {
   margin: 1rem 0;
 }
 
+/* Cascade demo: external stylesheet sets off-white background.
+   The inline style on <mark> in index.html overrides it with amber,
+   demonstrating that inline styles beat external stylesheet rules. */
 mark {
-  background-color: #f39c12;
+  background-color: rgb(245, 245, 240);
   padding: 0.1em 0.25em;
   border-radius: 2px;
 }

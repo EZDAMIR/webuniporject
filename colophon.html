@@ -12,6 +12,12 @@
     <!-- Author: Damir Shuitinov -->
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/damir.css" />
+    <style>
+      /* Internal stylesheet — same specificity as .page-main in base.css (0,1,0)
+         but later in the cascade, so this 800px max-width overrides base.css's
+         1100px for the colophon page only. */
+      .page-main { max-width: 800px; }
+    </style>
   </head>
   <body>
     <header class="site-header">
@@ -29,10 +35,11 @@
     <main class="page-main">
       <h1>How this website was made</h1>
       <p>
-        I built four local HTML files and a shared CSS stylesheet. Each file includes an HTML5
-        doctype, language, character encoding, viewport, description and author information.
-        Repeated navigation makes every page predictable. The home page introduces the store, the
-        product page compares materials, and the order page collects a request.
+        I built four local HTML files styled with two external CSS files and one page-specific
+        internal stylesheet. Each file includes an HTML5 doctype, language, character encoding,
+        viewport, description and author information. Repeated navigation makes every page
+        predictable. The home page introduces the store, the product page compares materials, and
+        the order page collects a request.
       </p>
 
       <section>
