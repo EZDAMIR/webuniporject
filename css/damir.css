@@ -2,6 +2,21 @@
    Damir Shuitinov
    Linked after base.css; these rules layer on top of shared styles. */
 
+/* --- Specificity experiment: cascade conflict within damir.css -------
+
+   Rule A: class selector       specificity 0,1,0 — LOSES
+   Rule B: descendant selector  specificity 0,2,0 — WINS
+
+   Result: nav links inside the header show off-white, not amber.
+   The browser resolves the conflict by specificity score alone —
+   Rule B scores higher, so it wins regardless of source order. */
+
+/* Specificity: 0,1,0 — LOSES. Sets amber, gets overridden. */
+.nav-link { color: #f39c12; }
+
+/* Specificity: 0,2,0 — WINS. Off-white is what shows. */
+.site-header .nav-link { color: rgb(245, 245, 240); }
+
 /* Reinforce store-brand text style */
 .store-brand {
   font-size: 1.15rem;
@@ -59,4 +74,9 @@ blockquote {
   border-left: 3px solid #f39c12;
   color: rgba(44, 62, 80, 0.75);
   padding-left: 1rem;
+}
+
+/* fixed-call button border */
+.fixed-call {
+  border: 2px solid rgba(245, 245, 240, 0.4);
 }
