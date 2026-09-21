@@ -15,3 +15,13 @@
 13. How does a browser turn HTML into a webpage?
 14. Make a compile of 1st lecture
 15. What comments should I add to my Code?
+16. What is CSS specificity and how does it work?
+17. What is the difference between `margin` and `padding`?
+18. How do I use CSS Flexbox to lay out a navigation bar?
+19. What is CSS Grid and when should I use it instead of Flexbox?
+20. What does `position: absolute` do and why does it need a `position: relative` parent?
+21. How does float work and why do I need a clearfix?
+22. What are the three ways to include CSS in an HTML page?
+23. What is the CSS cascade and what order does the browser apply styles in?
+24. How do pseudo-elements like `::before` and `::after` work?
+25. What is margin collapse and why does `box-sizing` not prevent it?

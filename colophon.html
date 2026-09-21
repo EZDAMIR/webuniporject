@@ -10,27 +10,36 @@
     <meta name="author" content="Damir Shuitinov" />
     <title>Colophon for the Kamzina 199 Website</title>
     <!-- Author: Damir Shuitinov -->
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/damir.css" />
+    <style>
+      /* Internal stylesheet — same specificity as .page-main in base.css (0,1,0)
+         but later in the cascade, so this 800px max-width overrides base.css's
+         1100px for the colophon page only. */
+      .page-main { max-width: 800px; }
+    </style>
   </head>
   <body>
-    <header>
-      <p><strong>Kamzina 199 Building Materials Store</strong></p>
-      <nav aria-label="Main navigation">
-        <ul>
-          <li><a href="index.html">Home</a></li>
-          <li><a href="products.html">Products and prices</a></li>
-          <li><a href="order.html">Order and delivery</a></li>
-          <li><a href="colophon.html">Colophon</a></li>
+    <header class="site-header">
+      <a class="store-brand" href="index.html">Kamzina 199 Building Materials Store</a>
+      <nav class="main-nav" aria-label="Main navigation">
+        <ul class="nav-list">
+          <li><a class="nav-link" href="index.html">Home</a></li>
+          <li><a class="nav-link" href="products.html">Products and prices</a></li>
+          <li><a class="nav-link" href="order.html">Order and delivery</a></li>
+          <li><a class="nav-link" href="colophon.html">Colophon</a></li>
         </ul>
       </nav>
     </header>
 
-    <main>
+    <main class="page-main">
       <h1>How this website was made</h1>
       <p>
-        I built four local HTML files with no CSS, JavaScript, framework or template. Each file
-        includes an HTML5 doctype, language, character encoding, viewport, description and author
-        information. Repeated navigation makes every page predictable. The home page introduces the
-        store, the product page compares materials, and the order page collects a request.
+        I built four local HTML files styled with two external CSS files and one page-specific
+        internal stylesheet. Each file includes an HTML5 doctype, language, character encoding,
+        viewport, description and author information. Repeated navigation makes every page
+        predictable. The home page introduces the store, the product page compares materials, and
+        the order page collects a request.
       </p>
 
       <section>
@@ -58,7 +67,7 @@
       <section>
         <h2>Sources and maintenance</h2>
         <p>
-          Business facts came from the shop’s <cite>2GIS listing</cite>, where its category appears
+          Business facts came from the shop's <cite>2GIS listing</cite>, where its category appears
           as <i lang="ru">Стройматериалы</i>. Price research was checked against Kazakhstan
           retailers on 12 September 2026. The comparison for Task A was
           <cite>Megastroy Kazakhstan</cite>; its published contact is
@@ -70,7 +79,7 @@
       </section>
     </main>
 
-    <footer>
+    <footer class="site-footer">
       <p>Created by Damir Shuitinov<br />Phone: <a href="tel:+77771320474">+7 777 132-04-74</a></p>
       <p>&copy; 2026 Kamzina 199 Building Materials Store</p>
     </footer>

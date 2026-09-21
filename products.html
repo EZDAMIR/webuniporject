@@ -10,21 +10,23 @@
     <meta name="author" content="Damir Shuitinov" />
     <title>Products and Prices at Kamzina 199</title>
     <!-- Author: Damir Shuitinov -->
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/damir.css" />
   </head>
   <body>
-    <header>
-      <p><strong>Kamzina 199 Building Materials Store</strong></p>
-      <nav aria-label="Main navigation">
-        <ul>
-          <li><a href="index.html">Home</a></li>
-          <li><a href="products.html">Products and prices</a></li>
-          <li><a href="order.html">Order and delivery</a></li>
-          <li><a href="colophon.html">Colophon</a></li>
+    <header class="site-header">
+      <a class="store-brand" href="index.html">Kamzina 199 Building Materials Store</a>
+      <nav class="main-nav" aria-label="Main navigation">
+        <ul class="nav-list">
+          <li><a class="nav-link" href="index.html">Home</a></li>
+          <li><a class="nav-link" href="products.html">Products and prices</a></li>
+          <li><a class="nav-link" href="order.html">Order and delivery</a></li>
+          <li><a class="nav-link" href="colophon.html">Colophon</a></li>
         </ul>
       </nav>
     </header>
 
-    <main>
+    <main class="products-main">
       <h1>Products and current prices</h1>
       <p>
         Use this short catalogue to estimate a basic order. Prices are shown in Kazakhstan tenge and
@@ -33,7 +35,7 @@
         items than the examples below.
       </p>
 
-      <section>
+      <section class="product-grid">
         <h2>Popular materials</h2>
         <!-- A data table is used here because product information has two dimensions (products vs. attributes); a list would lose the column relationships between specification, unit, and price. -->
         <table>
@@ -79,7 +81,7 @@
       </section>
 
       <!-- An article wraps the choosing-materials guide because that advice can stand alone independently of the price table and could be read or reused out of context. -->
-      <article>
+      <article class="product-card">
         <h2>Choosing materials</h2>
         <ol start="1">
           <li>Measure the area and add a small allowance.</li>
@@ -111,14 +113,14 @@
         </p>
       </article>
 
-      <figure>
+      <figure class="store-photo">
         <img
           src="images/cement-display.jpg"
           alt="Stacks of bagged cement and dry building mixtures inside the Kamzina 199 store"
         />
         <figcaption>Cement and dry mixtures sold by the bag.</figcaption>
       </figure>
-      <figure>
+      <figure class="store-photo">
         <img
           src="images/sheet-materials.jpg"
           alt="Corrugated metal roofing sheets stacked horizontally on outdoor storage racks"
@@ -132,7 +134,7 @@
       </p>
     </main>
 
-    <footer>
+    <footer class="site-footer">
       <p>
         Kamzina Street 199, Pavlodar &amp; delivery within the city<br />Phone:
         <a href="tel:+77771320474">+7 777 132-04-74</a>

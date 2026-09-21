@@ -10,21 +10,23 @@
     <meta name="author" content="Damir Shuitinov" />
     <title>Order and Delivery Request</title>
     <!-- Author: Damir Shuitinov -->
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/damir.css" />
   </head>
   <body>
-    <header>
-      <p><strong>Kamzina 199 Building Materials Store</strong></p>
-      <nav aria-label="Main navigation">
-        <ul>
-          <li><a href="index.html">Home</a></li>
-          <li><a href="products.html">Products and prices</a></li>
-          <li><a href="order.html">Order and delivery</a></li>
-          <li><a href="colophon.html">Colophon</a></li>
+    <header class="site-header">
+      <a class="store-brand" href="index.html">Kamzina 199 Building Materials Store</a>
+      <nav class="main-nav" aria-label="Main navigation">
+        <ul class="nav-list">
+          <li><a class="nav-link" href="index.html">Home</a></li>
+          <li><a class="nav-link" href="products.html">Products and prices</a></li>
+          <li><a class="nav-link" href="order.html">Order and delivery</a></li>
+          <li><a class="nav-link" href="colophon.html">Colophon</a></li>
         </ul>
       </nav>
     </header>
 
-    <main>
+    <main class="page-main">
       <h1>Request an order or delivery</h1>
       <p>
         Use this form to describe the materials you need and your preferred collection or delivery
@@ -35,7 +37,7 @@
         Street 199.
       </p>
 
-      <section>
+      <section class="info-section">
         <h2>Before completing the form</h2>
         <p>
           Check product dimensions carefully. Heavy or long items may need special transport and
@@ -46,9 +48,9 @@
         </p>
       </section>
 
-      <section>
+      <section class="info-section">
         <h2>Order request form</h2>
-        <form method="get" action="order.html">
+        <form class="order-form" method="get" action="order.html">
           <!-- This form has no server-side handler yet; submitting it only reloads this local page with form values in the URL. -->
           <fieldset>
             <legend>Customer and order details</legend>
@@ -136,7 +138,7 @@
             </p>
 
             <!-- This div groups two generic action controls; no sectioning or content-specific semantic element fits this pair. -->
-            <div>
+            <div class="action-buttons">
               <button type="submit">Submit request</button>
               <button type="reset">Clear form</button>
             </div>
@@ -145,7 +147,7 @@
       </section>
     </main>
 
-    <footer>
+    <footer class="site-footer">
       <p>
         Daily 08:00-18:00; winter 08:30-17:00<br />Phone:
         <a href="tel:+77771320474">+7 777 132-04-74</a>
