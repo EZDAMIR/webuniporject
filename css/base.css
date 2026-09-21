@@ -1,0 +1,481 @@
+/* =====================================================================
+   base.css — shared stylesheet for all four pages
+   Kamzina 199 Building Materials Store
+   Author: Damir Shuitinov
+   ===================================================================== */
+
+/* --- Colour palette (5 declared colours) ---
+   #2c3e50              Dark navy    hex
+   #e74c3c              Brick red    hex
+   rgb(245, 245, 240)   Off-white    rgb
+   #f39c12              Amber        hex
+   steelblue            Steel blue   named
+   Every rgba() value is derived from one of these five by adding an alpha channel. */
+
+/* --- Universal selector ------------------------------------------- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* --- Grouping selector -------------------------------------------- */
+h1,
+h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: #2c3e50;
+}
+
+/* --- Type selectors ------------------------------------------------- */
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  background-color: rgb(245, 245, 240);
+  color: #2c3e50;
+}
+
+header {
+  background-color: #2c3e50;
+}
+
+main {
+  padding: 0 1.5rem;
+}
+
+footer {
+  font-size: 0.875rem;
+  color: rgb(245, 245, 240);
+}
+
+/* --- Child selector ------------------------------------------------ */
+.main-nav > ul {
+  list-style: none;
+  padding: 0;
+}
+
+/* --- Descendant selector ------------------------------------------ */
+footer a {
+  color: steelblue;
+}
+
+/* --- Adjacent sibling selector ------------------------------------ */
+h2 + p {
+  margin-top: 0.25rem;
+}
+
+/* --- Flexbox #1: site header (centering method: Flexbox align-items) */
+.site-header {
+  background-color: #2c3e50;
+  padding: 1rem 2rem;
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.store-brand {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: rgb(245, 245, 240);
+  text-decoration: none;
+  flex: 1 1 auto;
+}
+
+.main-nav {
+  flex: 0 0 auto;
+}
+
+/* --- Flexbox #2: nav list ----------------------------------------- */
+.nav-list {
+  list-style: none;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.nav-link {
+  color: rgb(245, 245, 240);
+  text-decoration: none;
+  padding: 0.35rem 0.6rem;
+  border-radius: 3px;
+  font-size: 0.9rem;
+  display: inline-block;
+}
+
+/* --- Pseudo-class: :hover ----------------------------------------- */
+.nav-link:hover {
+  background-color: rgba(44, 62, 80, 0.5);
+  color: rgb(245, 245, 240);
+}
+
+/* --- Pseudo-element: ::before ------------------------------------- */
+h2::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 0.9em;
+  background-color: #e74c3c;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
+
+/* --- Grid centering: footer (centering method: Grid justify-items) - */
+.site-footer {
+  background-color: #2c3e50;
+  border-top: 1px solid rgba(44, 62, 80, 0.2);
+  color: rgb(245, 245, 240);
+  padding: 1.25rem 2rem;
+  font-size: 0.875rem;
+  display: grid;
+  justify-items: center;
+  gap: 0.4rem;
+}
+
+/* --- Typography ----------------------------------------------------- */
+h1 {
+  font-size: 1.75rem;
+  margin-bottom: 0.75rem;
+}
+
+h2 {
+  font-size: 1.25rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+p {
+  margin-bottom: 0.75rem;
+}
+
+a {
+  color: steelblue;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid rgba(44, 62, 80, 0.15);
+  margin: 1.5rem 0;
+}
+
+small {
+  display: block;
+  font-size: 0.8rem;
+  color: rgba(44, 62, 80, 0.6);
+  margin-top: 0.4rem;
+}
+
+/* --- ID selectors --------------------------------------------------- */
+/* #services is the float container — cleared by #services::after */
+#services {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background-color: rgba(245, 245, 240, 0.6);
+  border-radius: 4px;
+}
+
+/* #visit groups visiting information as a distinct block */
+#visit {
+  margin: 1.5rem 0;
+  padding: 1rem;
+}
+
+/* --- Pseudo-element: ::after (clearfix for float container) -------- */
+#services::after {
+  content: "";
+  display: block;
+  clear: both;
+}
+
+/* --- Grid #2: page-main layout (index, order, colophon)
+       Centering method: margin auto via max-width and margin: auto ---- */
+.page-main {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  gap: 1.5rem;
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+}
+
+/* All direct children span both columns so pages remain single-column */
+.page-main > h1,
+.page-main > p,
+.page-main > section,
+.page-main > form {
+  grid-column: 1 / -1;
+}
+
+/* --- Grid #3: products-main layout --------------------------------- */
+.products-main {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  gap: 2rem;
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+}
+
+.products-main > h1,
+.products-main > p,
+.products-main > section,
+.products-main > article,
+.products-main > hr {
+  grid-column: 1 / -1;
+}
+
+/* min-width: 0 prevents a grid item from overflowing its column */
+.products-main > .store-photo {
+  min-width: 0;
+}
+
+/* --- Positioning ---------------------------------------------------- */
+
+/* position: static — default; stated explicitly to label the concept */
+.info-section {
+  position: static;
+  margin: 1.5rem 0;
+}
+
+/* position: relative — creates a positioning context for the figcaption */
+.store-photo {
+  position: relative;
+  margin: 1rem 0;
+  border: 2px solid #2c3e50;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.store-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* position: absolute — overlays figcaption at the bottom of its figure */
+.store-photo figcaption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(44, 62, 80, 0.85);
+  color: rgb(245, 245, 240);
+  font-size: 0.825rem;
+  padding: 0.4rem 0.6rem;
+}
+
+/* position: fixed — call button stays in the viewport corner */
+.fixed-call {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  background-color: #e74c3c;
+  color: rgb(245, 245, 240);
+  padding: 0.6rem 1.1rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: none;
+  z-index: 100;
+}
+
+.fixed-call:hover {
+  background-color: rgba(231, 76, 60, 0.85);
+}
+
+/* --- Float and clear ----------------------------------------------- */
+.float-right {
+  float: right;
+  margin: 0 0 1rem 1.5rem;
+  max-width: 42%;
+  height: auto;
+  border-radius: 3px;
+}
+
+/* --- Product content ----------------------------------------------- */
+.product-grid {
+  margin: 1.5rem 0;
+}
+
+.product-card {
+  background-color: rgba(245, 245, 240, 0.8);
+  border: 1px solid rgba(44, 62, 80, 0.15);
+  border-radius: 4px;
+  padding: 1rem;
+}
+
+/* --- Table --------------------------------------------------------- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+th,
+td {
+  border: 1px solid rgba(44, 62, 80, 0.2);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+thead th {
+  background-color: #2c3e50;
+  color: rgb(245, 245, 240);
+  font-weight: 700;
+}
+
+/* --- Pseudo-class: :nth-child -------------------------------------- */
+tbody tr:nth-child(even) {
+  background-color: rgba(44, 62, 80, 0.04);
+}
+
+/* --- Box model: form and fieldset ---------------------------------- */
+.order-form {
+  margin-top: 1rem;
+}
+
+.order-form p {
+  margin-bottom: 0.9rem;
+}
+
+fieldset {
+  /* Margin collapse note: adjacent <p> elements each carry margin: 0.75rem 0
+     (see the p rule above). Between two consecutive paragraphs the
+     bottom margin of the first and the top margin of the second collapse into
+     one 0.75rem gap, not 1.5rem. box-sizing does not prevent this — margin
+     collapse is a separate CSS concept that affects only vertical margins
+     between block siblings in normal flow. */
+  margin-top: 1rem;
+  border: 1px solid rgba(44, 62, 80, 0.25);
+  border-radius: 4px;
+  padding: 1.25rem;
+}
+
+legend {
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0 0.4rem;
+  color: #2c3e50;
+}
+
+label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  color: #2c3e50;
+}
+
+/* --- Attribute selectors ------------------------------------------ */
+input[type="email"],
+input[type="tel"] {
+  font-family: inherit;
+}
+
+/* input:not() excludes radio and checkbox from the width rule */
+input:not([type="radio"]):not([type="checkbox"]),
+select,
+textarea {
+  width: 100%;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid rgba(44, 62, 80, 0.35);
+  border-radius: 3px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  background-color: rgb(245, 245, 240);
+  color: #2c3e50;
+}
+
+/* --- Pseudo-class: :focus ----------------------------------------- */
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid steelblue;
+  outline-offset: 1px;
+}
+
+button {
+  padding: 0.55rem 1.4rem;
+  border: none;
+  border-radius: 3px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  cursor: pointer;
+  background-color: #e74c3c;
+  color: rgb(245, 245, 240);
+}
+
+button[type="reset"] {
+  background-color: rgba(44, 62, 80, 0.15);
+  color: #2c3e50;
+}
+
+button:hover {
+  opacity: 0.88;
+}
+
+/* Flexbox for action buttons row */
+.action-buttons {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.action-buttons button {
+  flex: 1 1 auto;
+}
+
+/* --- Rich content -------------------------------------------------- */
+aside {
+  background-color: rgba(243, 156, 18, 0.06);
+  border-left: 3px solid #f39c12;
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+}
+
+blockquote {
+  padding: 0.5rem 0;
+  font-style: italic;
+}
+
+blockquote footer {
+  font-style: normal;
+  font-size: 0.85rem;
+  color: rgba(44, 62, 80, 0.7);
+  margin-top: 0.25rem;
+  background-color: transparent;
+  padding: 0;
+  border: none;
+  text-align: left;
+}
+
+pre {
+  background-color: rgba(44, 62, 80, 0.06);
+  border-radius: 3px;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  color: #2c3e50;
+  margin: 1rem 0;
+}
+
+/* Cascade demo: external stylesheet sets off-white background.
+   The inline style on <mark> in index.html overrides it with amber,
+   demonstrating that inline styles beat external stylesheet rules. */
+mark {
+  background-color: rgb(245, 245, 240);
+  padding: 0.1em 0.25em;
+  border-radius: 2px;
+}

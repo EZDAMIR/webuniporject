@@ -1,0 +1,82 @@
+/* damir.css — personal stylesheet
+   Damir Shuitinov
+   Linked after base.css; these rules layer on top of shared styles. */
+
+/* --- Specificity experiment: cascade conflict within damir.css -------
+
+   Rule A: class selector       specificity 0,1,0 — LOSES
+   Rule B: descendant selector  specificity 0,2,0 — WINS
+
+   Result: nav links inside the header show off-white, not amber.
+   The browser resolves the conflict by specificity score alone —
+   Rule B scores higher, so it wins regardless of source order. */
+
+/* Specificity: 0,1,0 — LOSES. Sets amber, gets overridden. */
+.nav-link { color: #f39c12; }
+
+/* Specificity: 0,2,0 — WINS. Off-white is what shows. */
+.site-header .nav-link { color: rgb(245, 245, 240); }
+
+/* Reinforce store-brand text style */
+.store-brand {
+  font-size: 1.15rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: rgb(245, 245, 240);
+}
+
+/* h1 visual accent */
+h1 {
+  border-bottom: 3px solid #e74c3c;
+  padding-bottom: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+/* :focus override for nav links */
+.nav-link:focus {
+  outline: 2px solid #f39c12;
+  outline-offset: 2px;
+}
+
+/* footer a — descendant override to reinforce link colour */
+footer a {
+  color: steelblue;
+  text-decoration: underline;
+}
+
+/* ID-targeted shadow on the services section */
+#services {
+  box-shadow: 0 1px 4px rgba(44, 62, 80, 0.12);
+}
+
+/* table row hover accent */
+tbody tr:hover {
+  background-color: rgba(243, 156, 18, 0.07);
+}
+
+/* textarea focus accent colour */
+textarea:focus {
+  outline-color: #f39c12;
+  border-color: #f39c12;
+}
+
+/* code element styling */
+code {
+  background-color: rgb(245, 245, 240);
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+  font-size: 0.875em;
+  color: #2c3e50;
+}
+
+/* blockquote left border */
+blockquote {
+  border-left: 3px solid #f39c12;
+  color: rgba(44, 62, 80, 0.75);
+  padding-left: 1rem;
+}
+
+/* fixed-call button border */
+.fixed-call {
+  border: 2px solid rgba(245, 245, 240, 0.4);
+}
