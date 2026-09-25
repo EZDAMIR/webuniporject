@@ -15,12 +15,14 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
     />
+    <!-- Custom branding stylesheet loaded after Bootstrap so brand rules layer on top -->
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/damir.css" />
   </head>
   <body>
     <header>
-      <!-- Bootstrap navbar: navbar-expand-md collapses to a toggler below 768 px -->
+      <!-- Bootstrap navbar: navbar-expand-md collapses to a toggler below 768 px.
+           .container inside the nav aligns the brand and links to the page content width. -->
       <nav class="navbar navbar-expand-md navbar-dark bg-dark" aria-label="Main navigation">
         <div class="container">
           <a class="navbar-brand store-brand" href="index.html"
@@ -56,9 +58,10 @@
       </nav>
     </header>
 
-    <main class="page-main">
-      <h1>Building materials for projects in Pavlodar</h1>
-      <p>
+    <!-- .container chosen: prose content reads best at a constrained max-width; full-width not needed -->
+    <main class="container py-4">
+      <h1 class="display-6">Building materials for projects in Pavlodar</h1>
+      <p class="lead mb-4">
         The shop at Kamzina Street 199 supplies materials for repairs, finishing work and larger
         construction jobs. Customers can buy in retail or wholesale quantities, ask the staff for
         practical advice and arrange delivery in Pavlodar. The range includes dry building mixtures,
@@ -69,53 +72,77 @@
       </p>
 
       <!-- This section groups service information as a distinct thematic block; its id also provides the #services fragment target used by the same-page link in the opening paragraph. -->
-      <section id="services" class="info-section">
+      <section id="services" class="info-section bg-light rounded shadow-sm p-3 mb-4">
         <h2>What the shop offers</h2>
-        <p>
-          <img
-            class="float-right"
-            src="images/shop-front.jpg"
-            alt="Front entrance of the building materials store at Kamzina Street 199 in Pavlodar"
-          />
-          People come here for both a single missing item and a complete order. Staff can help match
-          products to the job, check availability and prepare a delivery. Payments are accepted by
-          cash, bank card and <abbr title="Quick Response">QR</abbr> code. The store serves private
-          customers, builders and small contractors.
-          <mark style="background-color: #f39c12">Delivery is available</mark>, which is especially
-          useful for cement, sheet materials and other heavy goods.
-        </p>
+        <!-- Two responsive columns: text on left (md+), image on right; stacked on mobile -->
+        <div class="row align-items-start g-3">
+          <div class="col-12 col-md-8">
+            <p>
+              People come here for both a single missing item and a complete order. Staff can help
+              match products to the job, check availability and prepare a delivery. Payments are
+              accepted by cash, bank card and <abbr title="Quick Response">QR</abbr> code. The store
+              serves private customers, builders and small contractors.
+              <mark>Delivery is available</mark>, which is especially useful for cement, sheet
+              materials and other heavy goods.
+            </p>
+          </div>
+          <div class="col-12 col-md-4 text-center text-md-start">
+            <img
+              class="img-fluid rounded"
+              src="images/shop-front.jpg"
+              alt="Front entrance of the building materials store at Kamzina Street 199 in Pavlodar"
+            />
+          </div>
+        </div>
       </section>
 
       <!-- #visit provides the fragment target for the same-page 'visit information' link above -->
-      <section id="visit" class="info-section">
+      <section id="visit" class="info-section mb-4">
         <h2>Plan your visit</h2>
-        <p>
-          The store is at <b>199 Kamzina Street</b>, Pavlodar, Kazakhstan. It is open daily from
-          08:00 to 18:00; winter hours are 08:30 to 17:00. Call
-          <a href="tel:+77771320474">+7 777 132-04-74</a> before a large order. The Shkolnaya stop
-          is about 100&nbsp;m away.
-        </p>
-        <!-- The customer review is in an aside because it supports the 'Plan your visit' section but is not central to it; the section reads correctly if the aside is removed. -->
-        <aside>
-          <h2>Customer voice</h2>
-          <blockquote>
+        <div class="row g-3">
+          <div class="col-12 col-md-8">
             <p>
-              "Хороший строительный магазин с большим выбором товаров для ремонта и строительства."
+              The store is at <b>199 Kamzina Street</b>, Pavlodar, Kazakhstan. It is open daily from
+              08:00 to 18:00; winter hours are 08:30 to 17:00. Call
+              <a href="tel:+77771320474">+7 777 132-04-74</a> before a large order. The Shkolnaya
+              stop is about 100&nbsp;m away.
             </p>
-            <footer>
-              — Valera Kluchko, regular customer.
-              <time datetime="2026-09-12">12 September 2026</time>
-            </footer>
-          </blockquote>
-        </aside>
+          </div>
+          <div class="col-12 col-md-4">
+            <!-- The customer review is in an aside because it supports the 'Plan your visit' section
+                 but is not central to it; the section reads correctly if the aside is removed. -->
+            <!-- Nested .row inside .col-md-4 to allow future layout additions within this column -->
+            <div class="row">
+              <div class="col-12">
+                <aside class="border-start border-warning border-3 ps-3 py-2">
+                  <h2>Customer voice</h2>
+                  <blockquote>
+                    <p>
+                      "Хороший строительный магазин с большим выбором товаров для ремонта и
+                      строительства."
+                    </p>
+                    <footer>
+                      — Valera Kluchko, regular customer.
+                      <time datetime="2026-09-12">12 September 2026</time>
+                    </footer>
+                  </blockquote>
+                </aside>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
     </main>
 
-    <footer class="site-footer">
-      <p>
-        Kamzina Street 199, Pavlodar<br />Phone: <a href="tel:+77771320474">+7 777 132-04-74</a>
-      </p>
-      <p>&copy; 2026 Kamzina 199 Building Materials Store</p>
+    <!-- .container-fluid used for footer so the dark background spans the full viewport width -->
+    <footer class="site-footer bg-dark py-3">
+      <div class="container-fluid text-center">
+        <p class="text-white mb-1">
+          Kamzina Street 199, Pavlodar<br />Phone:
+          <a href="tel:+77771320474">+7 777 132-04-74</a>
+        </p>
+        <p class="text-white-50 small mb-0">&copy; 2026 Kamzina 199 Building Materials Store</p>
+      </div>
     </footer>
 
     <a class="fixed-call" href="tel:+77771320474">Call us</a>
