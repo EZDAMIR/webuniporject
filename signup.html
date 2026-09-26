@@ -64,69 +64,74 @@
           <h1>Create an account</h1>
           <p>Fill in the form below to register and track your orders.</p>
 
-          <section class="info-section">
+          <section>
             <h2>Registration</h2>
-            <form class="order-form" method="get" action="signup.html">
-              <fieldset>
-                <legend>New account details</legend>
+            <form method="get" action="signup.html">
+              <fieldset class="border rounded p-3 mb-3">
+                <legend class="float-none w-auto px-2 fw-bold small">New account details</legend>
 
-                <p>
-                  <label for="signup-name">Full name</label><br />
+                <div class="mb-3">
+                  <label class="form-label" for="signup-name">Full name</label>
                   <input
+                    class="form-control"
                     type="text"
                     id="signup-name"
                     name="name"
                     placeholder="Your full name"
                     required
                   />
-                </p>
+                </div>
 
-                <p>
-                  <label for="signup-email">Email</label><br />
+                <div class="mb-3">
+                  <label class="form-label" for="signup-email">Email</label>
                   <input
+                    class="form-control"
                     type="email"
                     id="signup-email"
                     name="email"
                     placeholder="name@example.com"
                     required
                   />
-                </p>
+                </div>
 
-                <p>
-                  <label for="signup-phone">Telephone</label><br />
+                <div class="mb-3">
+                  <label class="form-label" for="signup-phone">Telephone</label>
                   <input
+                    class="form-control"
                     type="tel"
                     id="signup-phone"
                     name="phone"
                     placeholder="+7 700 000 00 00"
                   />
-                </p>
+                </div>
 
-                <p>
-                  <label for="signup-password">Password</label><br />
+                <div class="mb-3">
+                  <label class="form-label" for="signup-password">Password</label>
                   <input
+                    class="form-control"
                     type="password"
                     id="signup-password"
                     name="password"
                     placeholder="Choose a password"
                     required
                   />
-                </p>
+                </div>
 
-                <p>
-                  <label for="signup-confirm">Confirm password</label><br />
+                <div class="mb-3">
+                  <label class="form-label" for="signup-confirm">Confirm password</label>
                   <input
+                    class="form-control"
                     type="password"
                     id="signup-confirm"
                     name="confirm-password"
                     placeholder="Repeat your password"
                     required
                   />
-                </p>
+                </div>
 
-                <div class="action-buttons">
-                  <button type="submit">Create account</button>
-                  <button type="reset">Clear</button>
+                <div class="d-flex flex-wrap gap-2">
+                  <button type="submit" class="btn btn-danger">Create account</button>
+                  <button type="reset" class="btn btn-outline-secondary">Clear</button>
                 </div>
               </fieldset>
             </form>

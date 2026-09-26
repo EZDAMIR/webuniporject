@@ -69,7 +69,7 @@
         Street 199.
       </p>
 
-      <section class="info-section mb-4">
+      <section class="mb-4">
         <h2>Before completing the form</h2>
         <p>
           Check product dimensions carefully. Heavy or long items may need special transport and
@@ -80,99 +80,146 @@
         </p>
       </section>
 
-      <section class="info-section">
+      <section>
         <h2>Order request form</h2>
-        <form class="order-form" method="get" action="order.html">
+        <form method="get" action="order.html">
           <!-- This form has no server-side handler yet; submitting it only reloads this local page with form values in the URL. -->
-          <fieldset>
-            <legend>Customer and order details</legend>
+          <fieldset class="border rounded p-3 mb-3">
+            <legend class="float-none w-auto px-2 fw-bold small">
+              Customer and order details
+            </legend>
 
-            <p>
-              <label for="customer-name">Full name</label><br />
-              <input
-                type="text"
-                id="customer-name"
-                name="customer-name"
-                placeholder="Your full name"
-                required
-              />
-            </p>
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="customer-name">Full name</label>
+                <input
+                  class="form-control"
+                  type="text"
+                  id="customer-name"
+                  name="customer-name"
+                  placeholder="Your full name"
+                  required
+                />
+              </div>
 
-            <p>
-              <label for="customer-email">Email</label><br />
-              <input
-                type="email"
-                id="customer-email"
-                name="customer-email"
-                placeholder="name@example.com"
-                required
-              />
-            </p>
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="customer-email">Email</label>
+                <input
+                  class="form-control"
+                  type="email"
+                  id="customer-email"
+                  name="customer-email"
+                  placeholder="name@example.com"
+                  required
+                />
+              </div>
 
-            <p>
-              <label for="customer-phone">Telephone</label><br />
-              <input
-                type="tel"
-                id="customer-phone"
-                name="customer-phone"
-                placeholder="+7 700 000 00 00"
-                required
-              />
-            </p>
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="customer-phone">Telephone</label>
+                <input
+                  class="form-control"
+                  type="tel"
+                  id="customer-phone"
+                  name="customer-phone"
+                  placeholder="+7 700 000 00 00"
+                  required
+                />
+              </div>
 
-            <p>
-              <label for="quantity">Quantity</label><br />
-              <input type="number" id="quantity" name="quantity" min="1" placeholder="1" required />
-            </p>
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="quantity">Quantity</label>
+                <input
+                  class="form-control"
+                  type="number"
+                  id="quantity"
+                  name="quantity"
+                  min="1"
+                  placeholder="1"
+                  required
+                />
+              </div>
 
-            <p>
-              <label for="preferred-date">Preferred date</label><br />
-              <input type="date" id="preferred-date" name="preferred-date" required />
-            </p>
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="preferred-date">Preferred date</label>
+                <input
+                  class="form-control"
+                  type="date"
+                  id="preferred-date"
+                  name="preferred-date"
+                  required
+                />
+              </div>
 
-            <p>
-              <label for="category">Main product category</label><br />
-              <select id="category" name="category" required>
-                <option value="">Choose a category</option>
-                <option value="dry-mixtures">Dry mixtures</option>
-                <option value="sheet-materials">Sheet materials</option>
-                <option value="insulation">Insulation</option>
-                <option value="paint">Paint and varnish</option>
-                <option value="fasteners">Fasteners</option>
-              </select>
-            </p>
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="category">Main product category</label>
+                <select class="form-select" id="category" name="category" required>
+                  <option value="">Choose a category</option>
+                  <option value="dry-mixtures">Dry mixtures</option>
+                  <option value="sheet-materials">Sheet materials</option>
+                  <option value="insulation">Insulation</option>
+                  <option value="paint">Paint and varnish</option>
+                  <option value="fasteners">Fasteners</option>
+                </select>
+              </div>
 
-            <p>
-              Order method<br />
-              <input type="radio" id="collection" name="order-method" value="collection" required />
-              <label for="collection">Collection</label>
-              <input type="radio" id="delivery" name="order-method" value="delivery" />
-              <label for="delivery">Delivery in Pavlodar</label>
-            </p>
+              <div class="col-12">
+                <p class="form-label mb-1">Order method</p>
+                <div class="form-check form-check-inline">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    id="collection"
+                    name="order-method"
+                    value="collection"
+                    required
+                  />
+                  <label class="form-check-label" for="collection">Collection</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    id="delivery"
+                    name="order-method"
+                    value="delivery"
+                  />
+                  <label class="form-check-label" for="delivery">Delivery in Pavlodar</label>
+                </div>
+              </div>
 
-            <p>
-              <label for="notes">Products, specifications and delivery address</label><br />
-              <textarea
-                id="notes"
-                name="notes"
-                rows="6"
-                cols="45"
-                placeholder="List each product, size and quantity"
-                required
-              ></textarea>
-            </p>
+              <div class="col-12">
+                <label class="form-label" for="notes"
+                  >Products, specifications and delivery address</label
+                >
+                <textarea
+                  class="form-control"
+                  id="notes"
+                  name="notes"
+                  rows="6"
+                  placeholder="List each product, size and quantity"
+                  required
+                ></textarea>
+              </div>
 
-            <p>
-              <input type="checkbox" id="confirmation" name="confirmation" required />
-              <label for="confirmation"
-                >I confirm that the shop may call me about this request.</label
-              >
-            </p>
+              <div class="col-12">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="confirmation"
+                    name="confirmation"
+                    required
+                  />
+                  <label class="form-check-label" for="confirmation"
+                    >I confirm that the shop may call me about this request.</label
+                  >
+                </div>
+              </div>
+            </div>
 
-            <!-- This div groups two generic action controls; no sectioning or content-specific semantic element fits this pair. -->
-            <div class="action-buttons">
-              <button type="submit">Submit request</button>
-              <button type="reset">Clear form</button>
+            <div class="d-flex flex-wrap gap-2 mt-3">
+              <button type="submit" class="btn btn-danger">Submit request</button>
+              <button type="reset" class="btn btn-outline-secondary">Clear form</button>
             </div>
           </fieldset>
         </form>
