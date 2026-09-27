@@ -109,29 +109,28 @@ Line numbers verified against the final HTML files on 13 September 2026.
 | submit button | `order.html` | 140 | Damir Shuitinov |
 | reset button | `order.html` | 141 | Damir Shuitinov |
 | entity copy | `order.html` | 153 | Damir Shuitinov |
-| DOCTYPE | `colophon.html` | 1 | Damir Shuitinov |
-| html with lang | `colophon.html` | 2 | Damir Shuitinov |
-| meta charset | `colophon.html` | 4 | Damir Shuitinov |
-| meta viewport | `colophon.html` | 5 | Damir Shuitinov |
-| meta description | `colophon.html` | 6 | Damir Shuitinov |
-| meta author | `colophon.html` | 10 | Damir Shuitinov |
-| unique title | `colophon.html` | 11 | Damir Shuitinov |
-| author comment | `colophon.html` | 12 | Damir Shuitinov |
-| exactly one h1 | `colophon.html` | 28 | Damir Shuitinov |
-| header | `colophon.html` | 15 | Damir Shuitinov |
-| nav | `colophon.html` | 17 | Damir Shuitinov |
-| main | `colophon.html` | 27 | Damir Shuitinov |
-| footer | `colophon.html` | 72 | Damir Shuitinov |
-| why comment 1 (pre) | `colophon.html` | 45 | Damir Shuitinov |
-| why comment 2 (sources section) | `colophon.html` | 57 | Damir Shuitinov |
-| code | `colophon.html` | 40 | Damir Shuitinov |
-| pre | `colophon.html` | 46 | Damir Shuitinov |
-| kbd | `colophon.html` | 51 | Damir Shuitinov |
-| samp | `colophon.html` | 53 | Damir Shuitinov |
-| cite | `colophon.html` | 61 | Damir Shuitinov |
-| i | `colophon.html` | 62 | Damir Shuitinov |
-| mailto link | `colophon.html` | 65 | Damir Shuitinov |
-| entity copy | `colophon.html` | 74 | Damir Shuitinov |
+| DOCTYPE | `signin.html` | 1 | Damir Shuitinov |
+| html with lang | `signin.html` | 2 | Damir Shuitinov |
+| meta charset | `signin.html` | 4 | Damir Shuitinov |
+| meta viewport | `signin.html` | 5 | Damir Shuitinov |
+| meta description | `signin.html` | 6 | Damir Shuitinov |
+| meta author | `signin.html` | 10 | Damir Shuitinov |
+| unique title | `signin.html` | 11 | Damir Shuitinov |
+| author comment | `signin.html` | 12 | Damir Shuitinov |
+| exactly one h1 | `signin.html` | 57 | Damir Shuitinov |
+| header | `signin.html` | 18 | Damir Shuitinov |
+| nav | `signin.html` | 20 | Damir Shuitinov |
+| main | `signin.html` | 50 | Damir Shuitinov |
+| footer | `signin.html` | 77 | Damir Shuitinov |
+| why comment (disabled button) | `signin.html` | 73 | Damir Shuitinov |
+| form with method and action | `signin.html` | 63 | Damir Shuitinov |
+| fieldset (Bootstrap styled) | `signin.html` | 64 | Damir Shuitinov |
+| legend (Bootstrap float-none) | `signin.html` | 65 | Damir Shuitinov |
+| email input (form-control) | `signin.html` | 68 | Damir Shuitinov |
+| password input | `signin.html` | 74 | Damir Shuitinov |
+| disabled button (Forgot password?) | `signin.html` | 81 | Damir Shuitinov |
+| small | `signin.html` | 84 | Damir Shuitinov |
+| entity copy | `signin.html` | 93 | Damir Shuitinov |
 | span (no CSS — justified by context) | `products.html` | — | Damir Shuitinov |
 | div with reason comment | `order.html` | 138 | Damir Shuitinov |
 | strong | `index.html` | 16 | Damir Shuitinov |
