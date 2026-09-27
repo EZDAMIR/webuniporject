@@ -25,3 +25,13 @@
 23. What is the CSS cascade and what order does the browser apply styles in?
 24. How do pseudo-elements like `::before` and `::after` work?
 25. What is margin collapse and why does `box-sizing` not prevent it?
+26. What is Bootstrap and how does it differ from writing custom CSS?
+27. How does `navbar-expand-md` decide when to collapse the menu into a toggler?
+28. What is the difference between `.container` and `.container-fluid` in Bootstrap?
+29. How does the Bootstrap grid system work with `row`, `col-*` and breakpoint suffixes?
+30. What does `g-3` mean in `<div class="row g-3">` and how is it different from `gap` in CSS Grid?
+31. When should I use a Bootstrap card component instead of a plain `<article>` with custom CSS?
+32. How do `form-control`, `form-label`, and `form-check` improve form accessibility over unstyled inputs?
+33. What does `btn-lg` and `btn-sm` change about a Bootstrap button compared to a plain `btn`?
+34. How do Bootstrap responsive utility classes like `text-center text-md-start` differ from writing a media query?
+35. Why must the Bootstrap JS bundle be placed at the end of `<body>` rather than in `<head>`?

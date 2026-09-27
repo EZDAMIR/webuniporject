@@ -79,7 +79,7 @@ Project: Kamzina 199 Building Materials Store
 | Grid — footer | `css/base.css` | 133–142 | `display:grid`, `justify-items:center`, `gap: 0.4rem` |
 | Grid — page-main | `css/base.css` | 201–216 | `display:grid`, `grid-template-columns: repeat(2, minmax(280px, 1fr))`, `gap: 1.5rem`, spanning `grid-column: 1/-1` |
 | Grid — products-main | `css/base.css` | 219–239 | `display:grid`, `grid-template-columns: repeat(2, minmax(280px, 1fr))`, `gap: 2rem`, spanning `grid-column: 1/-1` |
-| Pages using grid | All 4 HTML files | `<main>` element | `index.html`, `order.html`, `colophon.html` → `page-main`; `products.html` → `products-main` |
+| Pages using grid | All 5 HTML files | `<main>` element | Assignment 3: all pages use Bootstrap `.container.py-4`; `products.html` also uses `.row.g-4` |
 
 ---
 
@@ -119,8 +119,8 @@ Project: Kamzina 199 Building Materials Store
 
 | Demonstration | Files | Evidence |
 |---|---|---|
-| External → internal cascade | `css/base.css` + `colophon.html` line 15–20 | `base.css` sets `.page-main { max-width: 1100px }`; internal `<style>` on colophon overrides to `800px` — same specificity (0,1,0) but later in cascade |
-| External → inline cascade | `css/base.css` line 477–481 + `index.html` line 54 | `base.css` sets `mark { background-color: rgb(245,245,240) }`; inline `style="background-color: #f39c12"` overrides it — inline always wins |
+| External → Bootstrap cascade | `css/base.css` + Bootstrap CDN | Bootstrap Reboot sets body and heading defaults; `base.css` (loaded after) overrides font-family, colours and mark background — same origin, later stylesheet wins |
+| Bootstrap → brand colour | `css/base.css` line 73–75 + `index.html` | Bootstrap sets `mark { background: #fff3cd }`; `base.css` `.mark, mark` rule overrides to `var(--brand-amber)` — external order determines winner |
 
 ---
 
@@ -150,23 +150,15 @@ Project: Kamzina 199 Building Materials Store
 
 ---
 
-## Exactly one internal `<style>` block
+## Internal `<style>` blocks
 
-| File | Line | Content |
-|---|---|---|
-| `colophon.html` | 15–20 | `.page-main { max-width: 800px }` — cascade demo |
-
-No other HTML file contains a `<style>` block.
+Assignment 3 (Bootstrap migration): no internal `<style>` blocks are present in any of the five HTML pages. The Assignment 2 cascade demo (`colophon.html`) has been removed; Bootstrap is loaded via CDN in `<head>` on all pages.
 
 ---
 
-## Exactly one inline `style=""` attribute
+## Inline `style=""` attributes
 
-| File | Line | Content |
-|---|---|---|
-| `index.html` | 54 | `<mark style="background-color: #f39c12;">` — overrides base.css off-white |
-
-No other element uses a `style=""` attribute.
+Assignment 3 (Bootstrap migration): no inline `style=""` attributes are present in any of the five HTML pages. The Assignment 2 cascade demo on `<mark>` has been replaced by the `mark` rule in `base.css` which overrides Bootstrap's default yellow with the brand amber colour.
 
 ---
 
@@ -180,7 +172,7 @@ No other element uses a `style=""` attribute.
 | `.nav-list` | All 4 HTML | `<ul>` |
 | `.nav-link` | All 4 HTML | `<a>` nav links |
 | `.site-footer` | All 4 HTML | `<footer>` |
-| `.page-main` | `index.html`, `order.html`, `colophon.html` | `<main>` |
+| `.container.py-4` | `index.html`, `order.html`, `signin.html`, `signup.html`, `products.html` | `<main>` (Bootstrap grid replaces .page-main) |
 | `.products-main` | `products.html` | `<main>` |
 | `.info-section` | `index.html`, `order.html` | `<section>` |
 | `.store-photo` | `index.html`, `products.html` | `<figure>` |
