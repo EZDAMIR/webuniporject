@@ -87,3 +87,7 @@ code {
   font-size: 0.875em;
 }
 .site-footer a { color: steelblue; text-decoration: underline; }
+
+/* CSS-only nav toggle: hidden checkbox + label replaces the JS-driven button */
+#nav-toggle { display: none; }
+#nav-toggle:checked ~ .navbar-collapse { display: block !important; }
