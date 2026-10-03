@@ -88,6 +88,12 @@ code {
 }
 .site-footer a { color: steelblue; text-decoration: underline; }
 
-/* CSS-only nav toggle: hidden checkbox + label replaces the JS-driven button */
+
 #nav-toggle { display: none; }
 #nav-toggle:checked ~ .navbar-collapse { display: block !important; }
+
+/* highlight for a selected product row */
+.selected-row {
+  background-color: rgba(231, 76, 60, 0.06);
+  border-left: 3px solid var(--brand-red);
+}
