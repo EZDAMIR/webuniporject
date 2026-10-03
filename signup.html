@@ -56,11 +56,17 @@
       <div class="row justify-content-center">
         <div class="col-12 col-md-8 col-lg-6">
           <h1>Create an account</h1>
-          <p>Fill in the form below to register and track your orders.</p>
+          <p>
+            Fill in the form below to register. Account features for this static site are prepared
+            for a future implementation; ordering does not require an account.
+          </p>
+
+          <div id="signup-result" class="alert d-none" role="status"></div>
 
           <section>
             <h2>Registration</h2>
-            <form method="get" action="signup.html">
+            <!-- Password fields have no name attribute so their values are not included in the GET URL -->
+            <form id="signup-form" method="get" action="signup.html">
               <fieldset class="border rounded p-3 mb-3">
                 <legend class="float-none w-auto px-2 fw-bold small">New account details</legend>
 
@@ -74,6 +80,7 @@
                     placeholder="Your full name"
                     required
                   />
+                  <div class="invalid-feedback">Please enter your name.</div>
                 </div>
 
                 <div class="mb-3">
@@ -86,6 +93,7 @@
                     placeholder="name@example.com"
                     required
                   />
+                  <div class="invalid-feedback">Please enter a valid email address.</div>
                 </div>
 
                 <div class="mb-3">
@@ -100,15 +108,16 @@
                 </div>
 
                 <div class="mb-3">
+                  <!-- name omitted: password values are not serialised into the URL on submission -->
                   <label class="form-label" for="signup-password">Password</label>
                   <input
                     class="form-control"
                     type="password"
                     id="signup-password"
-                    name="password"
                     placeholder="Choose a password"
                     required
                   />
+                  <div class="invalid-feedback">Please choose a password.</div>
                 </div>
 
                 <div class="mb-3">
@@ -117,15 +126,19 @@
                     class="form-control"
                     type="password"
                     id="signup-confirm"
-                    name="confirm-password"
                     placeholder="Repeat your password"
                     required
                   />
+                  <div class="invalid-feedback">Please confirm your password.</div>
                 </div>
 
                 <div class="d-flex flex-wrap gap-2">
-                  <button type="submit" class="btn btn-danger">Create account</button>
-                  <button type="reset" class="btn btn-outline-secondary">Clear</button>
+                  <button type="submit" id="signup-submit" class="btn btn-danger">
+                    Create account
+                  </button>
+                  <button type="reset" id="signup-clear" class="btn btn-outline-secondary">
+                    Clear
+                  </button>
                 </div>
               </fieldset>
             </form>

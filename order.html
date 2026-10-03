@@ -53,34 +53,37 @@
 
     <!-- .container chosen: form content reads best at a constrained width -->
     <main class="container py-4">
-      <h1>Request an order or delivery</h1>
+      <h1>Order and delivery request</h1>
       <p class="lead mb-4">
         Use this form to describe the materials you need and your preferred collection or delivery
-        date. Measure the project first, then enter the quantity in the unit shown in the catalogue.
-        For mixed orders, choose the main category and list the remaining items in the notes. A team
-        member can confirm stock, final quantities and transport details by telephone. Delivery is
-        arranged within Pavlodar, while customers may also collect prepared orders from Kamzina
-        Street 199.
+        date. Select each product from the list; the unit shown in the product name matches the
+        catalogue. Choose collection or delivery, then fill in the address block if you need
+        delivery within Pavlodar. Submitting the form completes your request on this page and
+        produces a summary below.
       </p>
 
       <section class="mb-4">
         <h2>Before completing the form</h2>
         <p>
           Check product dimensions carefully. Heavy or long items may need special transport and
-          help with unloading. Keep your phone nearby after making the request. If the order is
-          urgent, call <a href="tel:+77771320474">+7 777 132-04-74</a> during opening hours. The
-          store accepts cash, card and QR payment, but payment is arranged only after the order
-          details are confirmed.
+          help with unloading. If the order is urgent, call
+          <a href="tel:+77771320474">+7 777 132-04-74</a> during opening hours. The store accepts
+          cash, card and QR payment; payment is arranged after stock and transport details are
+          confirmed.
         </p>
       </section>
 
-      <section>
-        <h2>Order request form</h2>
-        <form method="get" action="order.html">
-          <!-- This form has no server-side handler yet; submitting it only reloads this local page with form values in the URL. -->
-          <fieldset class="border rounded p-3 mb-3">
-            <legend class="float-none w-auto px-2 fw-bold small">Customer and order details</legend>
+      <div id="order-errors" class="alert alert-danger d-none" role="alert">
+        Please correct the highlighted fields before submitting.
+      </div>
 
+      <section class="mb-4">
+        <h2>Order request form</h2>
+        <!-- method="get" so submitted values appear in the URL on this static page -->
+        <form id="order-form" method="get" action="order.html">
+          <!-- ── Customer details ──────────────────────────────────── -->
+          <fieldset class="border rounded p-3 mb-3">
+            <legend class="float-none w-auto px-2 fw-bold small">Customer details</legend>
             <div class="row g-3">
               <div class="col-12 col-md-6">
                 <label class="form-label" for="customer-name">Full name</label>
@@ -92,6 +95,7 @@
                   placeholder="Your full name"
                   required
                 />
+                <div class="invalid-feedback">Please enter your name.</div>
               </div>
 
               <div class="col-12 col-md-6">
@@ -104,6 +108,7 @@
                   placeholder="name@example.com"
                   required
                 />
+                <div class="invalid-feedback">Please enter a valid email address.</div>
               </div>
 
               <div class="col-12 col-md-6">
@@ -116,19 +121,7 @@
                   placeholder="+7 700 000 00 00"
                   required
                 />
-              </div>
-
-              <div class="col-12 col-md-6">
-                <label class="form-label" for="quantity">Quantity</label>
-                <input
-                  class="form-control"
-                  type="number"
-                  id="quantity"
-                  name="quantity"
-                  min="1"
-                  placeholder="1"
-                  required
-                />
+                <div class="invalid-feedback">Please enter your telephone number.</div>
               </div>
 
               <div class="col-12 col-md-6">
@@ -140,81 +133,256 @@
                   name="preferred-date"
                   required
                 />
+                <div class="invalid-feedback">Please choose a preferred date.</div>
               </div>
-
-              <div class="col-12 col-md-6">
-                <label class="form-label" for="category">Main product category</label>
-                <select class="form-select" id="category" name="category" required>
-                  <option value="">Choose a category</option>
-                  <option value="dry-mixtures">Dry mixtures</option>
-                  <option value="sheet-materials">Sheet materials</option>
-                  <option value="insulation">Insulation</option>
-                  <option value="paint">Paint and varnish</option>
-                  <option value="fasteners">Fasteners</option>
-                </select>
-              </div>
-
-              <div class="col-12">
-                <p class="form-label mb-1">Order method</p>
-                <div class="form-check form-check-inline">
-                  <input
-                    class="form-check-input"
-                    type="radio"
-                    id="collection"
-                    name="order-method"
-                    value="collection"
-                    required
-                  />
-                  <label class="form-check-label" for="collection">Collection</label>
-                </div>
-                <div class="form-check form-check-inline">
-                  <input
-                    class="form-check-input"
-                    type="radio"
-                    id="delivery"
-                    name="order-method"
-                    value="delivery"
-                  />
-                  <label class="form-check-label" for="delivery">Delivery in Pavlodar</label>
-                </div>
-              </div>
-
-              <div class="col-12">
-                <label class="form-label" for="notes"
-                  >Products, specifications and delivery address</label
-                >
-                <textarea
-                  class="form-control"
-                  id="notes"
-                  name="notes"
-                  rows="6"
-                  placeholder="List each product, size and quantity"
-                  required
-                ></textarea>
-              </div>
-
-              <div class="col-12">
-                <div class="form-check">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    id="confirmation"
-                    name="confirmation"
-                    required
-                  />
-                  <label class="form-check-label" for="confirmation"
-                    >I confirm that the shop may call me about this request.</label
-                  >
-                </div>
-              </div>
-            </div>
-
-            <div class="d-flex flex-wrap gap-2 mt-3">
-              <button type="submit" class="btn btn-danger">Submit request</button>
-              <button type="reset" class="btn btn-outline-secondary">Clear form</button>
             </div>
           </fieldset>
+
+          <!-- ── Product selection ─────────────────────────────────── -->
+          <fieldset class="border rounded p-3 mb-3">
+            <legend class="float-none w-auto px-2 fw-bold small">Products</legend>
+            <p class="small text-muted mb-3">
+              The unit (bag or sheet) is shown in each product name. Select up to two products from
+              the catalogue. Describe any additional items in the notes field below.
+            </p>
+
+            <!-- Product row 1 — required -->
+            <div class="row g-3 mb-3 pb-3 border-bottom" id="order-row-1">
+              <div class="col-12 col-md-7">
+                <label class="form-label" for="product-1">Product</label>
+                <select class="form-select" id="product-1" name="product-1" required>
+                  <option value="">Choose a product</option>
+                  <option value="cement-m400">
+                    Cement M400 &mdash; bag, 50 kg &mdash; 2,260 &#8376;
+                  </option>
+                  <option value="plasterboard">
+                    Moisture-resistant plasterboard &mdash; sheet &mdash; 2,720 &#8376;
+                  </option>
+                  <option value="osb3">OSB-3 board &mdash; sheet &mdash; 5,530 &#8376;</option>
+                  <option value="tile-adhesive">
+                    Tile adhesive &mdash; bag, 25 kg &mdash; 2,720 &#8376;
+                  </option>
+                  <option value="other">Other product (describe in notes)</option>
+                </select>
+                <div class="invalid-feedback">Please choose a product.</div>
+              </div>
+              <div class="col-12 col-md-5">
+                <label class="form-label" for="qty-1">Quantity</label>
+                <small class="form-text d-block mb-1" id="quantity-unit"
+                  >Unit shown in the product name above.</small
+                >
+                <input
+                  class="form-control"
+                  type="number"
+                  id="qty-1"
+                  name="qty-1"
+                  min="1"
+                  placeholder="1"
+                  required
+                />
+                <div class="invalid-feedback">Please enter a quantity of at least 1.</div>
+              </div>
+            </div>
+
+            <!-- Product row 2 — optional -->
+            <div class="row g-3" id="order-row-2">
+              <div class="col-12 col-md-7">
+                <label class="form-label" for="product-2">
+                  Second product <span class="text-muted fw-normal">(optional)</span>
+                </label>
+                <select class="form-select" id="product-2" name="product-2">
+                  <option value="">None</option>
+                  <option value="cement-m400">
+                    Cement M400 &mdash; bag, 50 kg &mdash; 2,260 &#8376;
+                  </option>
+                  <option value="plasterboard">
+                    Moisture-resistant plasterboard &mdash; sheet &mdash; 2,720 &#8376;
+                  </option>
+                  <option value="osb3">OSB-3 board &mdash; sheet &mdash; 5,530 &#8376;</option>
+                  <option value="tile-adhesive">
+                    Tile adhesive &mdash; bag, 25 kg &mdash; 2,720 &#8376;
+                  </option>
+                  <option value="other">Other product (describe in notes)</option>
+                </select>
+              </div>
+              <div class="col-12 col-md-5">
+                <label class="form-label" for="qty-2">
+                  Quantity <span class="text-muted fw-normal">(optional)</span>
+                </label>
+                <input
+                  class="form-control"
+                  type="number"
+                  id="qty-2"
+                  name="qty-2"
+                  min="1"
+                  placeholder="1"
+                />
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- ── Collection or delivery ────────────────────────────── -->
+          <fieldset class="border rounded p-3 mb-3">
+            <legend class="float-none w-auto px-2 fw-bold small">Collection or delivery</legend>
+
+            <div class="mb-3">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  id="method-collection"
+                  name="order-method"
+                  value="collection"
+                  required
+                />
+                <label class="form-check-label" for="method-collection">
+                  Collect from the store
+                </label>
+              </div>
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  id="method-delivery"
+                  name="order-method"
+                  value="delivery"
+                />
+                <label class="form-check-label" for="method-delivery">
+                  Delivery within Pavlodar
+                </label>
+              </div>
+            </div>
+
+            <div id="collection-block" class="border rounded p-3 mb-3 bg-light">
+              <p class="mb-1 fw-bold">Collection address</p>
+              <p class="mb-0">
+                Kamzina Street 199, Pavlodar &mdash; open daily 08:00&ndash;18:00 (winter
+                08:30&ndash;17:00). Call ahead for large orders:
+                <a href="tel:+77771320474">+7 777 132-04-74</a>.
+              </p>
+            </div>
+
+            <div id="delivery-block" class="border rounded p-3 bg-light">
+              <p class="mb-2 fw-bold">Delivery address</p>
+              <p class="small text-muted mb-3">
+                Delivery is available within Pavlodar city limits. The delivery fee is agreed with
+                you after your request is received; it is not included in the product total below.
+              </p>
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label" for="delivery-address"
+                    >Street and building number</label
+                  >
+                  <input
+                    class="form-control"
+                    type="text"
+                    id="delivery-address"
+                    name="delivery-address"
+                    placeholder="e.g. Lenina Street 45"
+                  />
+                  <div class="invalid-feedback">Please enter the delivery address.</div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label" for="delivery-entrance">
+                    Entrance / floor <span class="text-muted fw-normal">(optional)</span>
+                  </label>
+                  <input
+                    class="form-control"
+                    type="text"
+                    id="delivery-entrance"
+                    name="delivery-entrance"
+                    placeholder="e.g. entrance 2, floor 3"
+                  />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label" for="delivery-contact">
+                    On-site contact name <span class="text-muted fw-normal">(optional)</span>
+                  </label>
+                  <input
+                    class="form-control"
+                    type="text"
+                    id="delivery-contact"
+                    name="delivery-contact"
+                    placeholder="Name of person receiving delivery"
+                  />
+                </div>
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- ── Notes ─────────────────────────────────────────────── -->
+          <fieldset class="border rounded p-3 mb-3">
+            <legend class="float-none w-auto px-2 fw-bold small">Notes</legend>
+            <label class="form-label" for="order-notes">
+              Additional products or instructions
+              <span class="text-muted fw-normal">(optional)</span>
+            </label>
+            <textarea
+              class="form-control"
+              id="order-notes"
+              name="order-notes"
+              rows="4"
+              placeholder="List any additional products with sizes and quantities, or any access instructions"
+            ></textarea>
+          </fieldset>
+
+          <div class="col-12 mb-3">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="order-consent"
+                name="order-consent"
+              />
+              <label class="form-check-label" for="order-consent">
+                I agree that the store may contact me about this request if needed.
+              </label>
+            </div>
+          </div>
+
+          <div class="d-flex flex-wrap gap-2">
+            <button type="submit" id="order-submit" class="btn btn-danger">Submit request</button>
+            <button type="reset" id="order-reset" class="btn btn-outline-secondary">
+              Clear form
+            </button>
+          </div>
         </form>
+      </section>
+
+      <!-- ── Order summary ─────────────────────────────────────────── -->
+      <section id="order-summary" class="mt-4" aria-labelledby="summary-heading">
+        <h2 id="summary-heading">Order request summary</h2>
+        <p class="text-muted small">
+          Selected products will appear in the table below. The total covers goods only; the
+          delivery fee is agreed separately after the request is received.
+        </p>
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <caption>
+              Products in your request
+            </caption>
+            <thead class="table-dark">
+              <tr>
+                <th scope="col">Product</th>
+                <th scope="col">Qty</th>
+                <th scope="col">Unit price</th>
+                <th scope="col">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody id="order-item-list"></tbody>
+            <tfoot>
+              <tr>
+                <th scope="row" colspan="3">Total (goods only)</th>
+                <td id="order-total">&mdash;</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div id="order-confirmation" class="alert alert-success d-none" role="status">
+          Your request has been received. A summary of your selections appears in the table above. A
+          team member may call to confirm stock or transport details if needed.
+        </div>
       </section>
     </main>
 

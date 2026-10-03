@@ -52,12 +52,18 @@
     <main class="container py-4">
       <div class="row justify-content-center">
         <div class="col-12 col-md-8 col-lg-6">
-          <h1>Sign in to your account</h1>
-          <p>Enter your email and password to access your account.</p>
+          <h1>Sign in</h1>
+          <p>
+            Enter your email and password below. Account features for this static site are prepared
+            for a future implementation; ordering does not require an account.
+          </p>
+
+          <div id="signin-result" class="alert d-none" role="status"></div>
 
           <section>
-            <h2>Sign in</h2>
-            <form method="get" action="signin.html">
+            <h2>Credentials</h2>
+            <!-- Password field has no name attribute so its value is not included in the GET URL -->
+            <form id="signin-form" method="get" action="signin.html">
               <fieldset class="border rounded p-3 mb-3">
                 <legend class="float-none w-auto px-2 fw-bold small">Account credentials</legend>
 
@@ -71,26 +77,28 @@
                     placeholder="name@example.com"
                     required
                   />
+                  <div class="invalid-feedback">Please enter your email address.</div>
                 </div>
 
                 <div class="mb-3">
+                  <!-- name omitted: password is not serialised into the URL when the form is submitted -->
                   <label class="form-label" for="signin-password">Password</label>
                   <input
                     class="form-control"
                     type="password"
                     id="signin-password"
-                    name="password"
                     placeholder="Your password"
                     required
                   />
+                  <div class="invalid-feedback">Please enter your password.</div>
                 </div>
 
-                <div class="d-flex flex-wrap align-items-center gap-2">
-                  <button type="submit" class="btn btn-danger btn-lg">Sign in</button>
-                  <button type="reset" class="btn btn-outline-secondary btn-sm">Clear</button>
-                  <!-- Disabled: password reset requires server-side functionality not yet implemented -->
-                  <button type="button" class="btn btn-link btn-sm ms-auto" disabled>
-                    Forgot password?
+                <div class="d-flex flex-wrap gap-2">
+                  <button type="submit" id="signin-submit" class="btn btn-danger btn-lg">
+                    Sign in
+                  </button>
+                  <button type="reset" id="signin-clear" class="btn btn-outline-secondary btn-sm">
+                    Clear
                   </button>
                 </div>
               </fieldset>
