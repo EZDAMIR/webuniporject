@@ -52,7 +52,10 @@ const Store = (function () {
       price: 4200,
     },
   ];
+  const cartKey = "kamzina-demo-cart";
   const maxQuantity = 999;
+  let storageAvailable = true;
+  let cart = loadCart();
 
   function findProduct(id) {
     return products.find(function (product) {
@@ -94,6 +97,105 @@ const Store = (function () {
     return prefix + "-" + Math.floor(100000 + Math.random() * 900000);
   }
 
+  function filterProducts(items, query, category) {
+    const search = query.trim().toLowerCase();
+    return items.filter(function (product) {
+      const text = product.name + " " + product.specification + " " + product.category;
+      return (
+        (category === "all" || product.category === category) && text.toLowerCase().includes(search)
+      );
+    });
+  }
+
+  function loadCart() {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(cartKey) || "[]");
+      if (!Array.isArray(saved)) {
+        return [];
+      }
+      const ids = new Set();
+      return saved
+        .filter(function (item) {
+          if (!item || !findProduct(item.id) || !validQuantity(item.quantity) || ids.has(item.id)) {
+            return false;
+          }
+          ids.add(item.id);
+          return true;
+        })
+        .map(function (item) {
+          return { id: item.id, quantity: item.quantity };
+        });
+    } catch (error) {
+      storageAvailable = false;
+      return [];
+    }
+  }
+
+  function saveCart(message) {
+    try {
+      sessionStorage.setItem(cartKey, JSON.stringify(cart));
+    } catch (error) {
+      storageAvailable = false;
+    }
+    return { success: true, message: message };
+  }
+
+  function addToCart(id, quantity) {
+    const product = findProduct(id);
+    const existing = cart.find(function (item) {
+      return item.id === id;
+    });
+    const totalQuantity = quantity + (existing ? existing.quantity : 0);
+    if (!product || !validQuantity(quantity) || !validQuantity(totalQuantity)) {
+      return {
+        success: false,
+        message:
+          "Choose a product and a whole quantity from 1 to 999. Each cart item is limited to 999 units.",
+      };
+    }
+    if (existing) {
+      existing.quantity = totalQuantity;
+    } else {
+      cart.push({ id: id, quantity: quantity });
+    }
+    return saveCart("Added " + quantity + " × " + product.name + " to your cart.");
+  }
+
+  function changeQuantity(id, change) {
+    const item = cart.find(function (line) {
+      return line.id === id;
+    });
+    if (!item || !validQuantity(item.quantity + change)) {
+      return false;
+    }
+    item.quantity += change;
+    saveCart(findProduct(id).name + ": quantity changed to " + item.quantity + ".");
+    return true;
+  }
+
+  function removeFromCart(id) {
+    const product = findProduct(id);
+    if (!product) {
+      return false;
+    }
+    cart = cart.filter(function (item) {
+      return item.id !== id;
+    });
+    saveCart(product.name + " removed from your cart.");
+    return true;
+  }
+
+  function clearCart() {
+    cart = [];
+    return saveCart("Cart cleared. Choose materials to start again.");
+  }
+
+  function getCart() {
+    return cart.map(function (item) {
+      return { id: item.id, quantity: item.quantity };
+    });
+  }
+
   return {
     products,
     findProduct,
@@ -103,5 +205,9 @@ const Store = (function () {
     getCartLines,
     getCartTotal,
     createReference,
+    filterProducts,
+    addToCart,
+    getCart,
+    clearCart,
   };
 })();
