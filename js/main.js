@@ -56,6 +56,7 @@ const Store = (function () {
   const maxQuantity = 999;
   let storageAvailable = true;
   let cart = loadCart();
+  let cartView = null;
 
   function findProduct(id) {
     return products.find(function (product) {
@@ -137,6 +138,12 @@ const Store = (function () {
     } catch (error) {
       storageAvailable = false;
     }
+    renderCart();
+    document.dispatchEvent(new CustomEvent("cartchange"));
+    const status = document.getElementById("cart-message");
+    if (status) {
+      showMessage(status, "success", message);
+    }
     return { success: true, message: message };
   }
 
@@ -196,6 +203,149 @@ const Store = (function () {
     });
   }
 
+  function makeElement(tag, classes, text) {
+    const element = document.createElement(tag);
+    element.classList.add(...classes.split(" ").filter(Boolean));
+    if (text !== undefined) {
+      element.textContent = text;
+    }
+    return element;
+  }
+
+  function makeMessage(id) {
+    const message = makeElement("p", "alert d-none");
+    message.id = id;
+    message.setAttribute("role", "status");
+    message.setAttribute("aria-live", "polite");
+    message.setAttribute("aria-atomic", "true");
+    return message;
+  }
+
+  function showMessage(element, type, message) {
+    element.classList.remove("d-none", "alert-danger", "alert-success", "alert-info");
+    element.classList.add("alert", "alert-" + type);
+    element.textContent = message;
+  }
+
+  function hideMessage(element) {
+    element.classList.add("d-none");
+    element.textContent = "";
+  }
+
+  function cartButton(label, action, id, disabled) {
+    const button = makeElement("button", "btn btn-outline-secondary btn-sm", label);
+    button.type = "button";
+    button.dataset.cartAction = action;
+    button.dataset.productId = id;
+    button.disabled = disabled;
+    return button;
+  }
+
+  function renderCartItem(line) {
+    const row = makeElement("tr", "");
+    row.dataset.productId = line.product.id;
+    const heading = makeElement("th", "", line.product.name);
+    heading.scope = "row";
+    const quantity = makeElement("td", "");
+    const controls = makeElement("div", "d-flex align-items-center gap-2");
+    controls.append(cartButton("Decrease", "decrease", line.product.id, line.quantity === 1));
+    controls.append(makeElement("span", "text-nowrap", line.quantity + " × " + line.product.unit));
+    controls.append(
+      cartButton("Increase", "increase", line.product.id, line.quantity === maxQuantity),
+    );
+    quantity.append(controls);
+    const actions = makeElement("td", "");
+    actions.append(cartButton("Remove", "remove", line.product.id, false));
+    row.append(
+      heading,
+      quantity,
+      makeElement("td", "text-nowrap", formatMoney(line.product.price)),
+      makeElement("td", "text-nowrap", formatMoney(line.subtotal)),
+      actions,
+    );
+    return row;
+  }
+
+  function renderCart() {
+    if (!cartView) {
+      return;
+    }
+    cartView.list.replaceChildren(...getCartLines(cart).map(renderCartItem));
+    const empty = cart.length === 0;
+    cartView.total.textContent = formatMoney(getCartTotal(cart));
+    cartView.clear.disabled = empty;
+    cartView.checkout.disabled = empty;
+  }
+
+  function setupCart(section, checkout, requiresStorage) {
+    let table = section.querySelector("table");
+    if (!table) {
+      table = makeElement("table", "table table-bordered");
+      table.append(makeElement("caption", "", "Selected materials and estimated subtotals"));
+      const header = table.createTHead().insertRow();
+      table.tHead.classList.add("table-dark");
+      ["Product", "Quantity", "Unit price", "Subtotal"].forEach(function (label) {
+        const cell = makeElement("th", "", label);
+        cell.scope = "col";
+        header.append(cell);
+      });
+      table.createTBody().id = "cart-items";
+      const footer = table.createTFoot().insertRow();
+      const label = makeElement("th", "", "Total (goods only)");
+      label.scope = "row";
+      label.colSpan = 3;
+      footer.append(label);
+      footer.insertCell().id = "cart-total";
+      const wrapper = makeElement("div", "table-responsive");
+      wrapper.append(table);
+      section.append(wrapper);
+    }
+    const action = makeElement("th", "", "Action");
+    action.scope = "col";
+    table.tHead.rows[0].append(action);
+    table.tFoot.rows[0].insertCell();
+    const wrapper = table.parentElement;
+    const message = makeMessage("cart-message");
+    wrapper.before(message);
+    const clear = makeElement("button", "btn btn-outline-secondary", "Clear cart");
+    clear.type = "button";
+    clear.id = "cart-clear";
+    const actions = makeElement("div", "d-flex flex-wrap gap-2 my-3");
+    actions.append(clear);
+    if (requiresStorage) {
+      actions.append(checkout);
+    }
+    section.append(actions);
+    cartView = {
+      list: table.tBodies[0],
+      total: table.tFoot.rows[0].cells[1],
+      wrapper,
+      clear,
+      checkout,
+      requiresStorage,
+    };
+
+    cartView.list.addEventListener("click", function (event) {
+      const button = event.target.closest("[data-cart-action]");
+      if (!button || button.disabled) {
+        return;
+      }
+      const id = button.dataset.productId;
+      const action = button.dataset.cartAction;
+      if (action === "increase") {
+        changeQuantity(id, 1);
+      } else if (action === "decrease") {
+        changeQuantity(id, -1);
+      } else {
+        removeFromCart(id);
+      }
+    });
+    clear.addEventListener("click", function () {
+      clearCart();
+    });
+    renderCart();
+  }
+
   return {
     products,
     findProduct,
@@ -209,5 +359,10 @@ const Store = (function () {
     addToCart,
     getCart,
     clearCart,
+    makeElement,
+    makeMessage,
+    setupCart,
+    showMessage,
+    hideMessage,
   };
 })();
