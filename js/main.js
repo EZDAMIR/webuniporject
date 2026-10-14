@@ -346,6 +346,86 @@ const Store = (function () {
     renderCart();
   }
 
+  function setFieldError(field, message) {
+    let feedback = document.getElementById(field.id + "-feedback");
+    if (!feedback) {
+      feedback = field.parentElement.querySelector(".invalid-feedback");
+      if (!feedback) {
+        feedback = makeElement("div", "invalid-feedback");
+        field.parentElement.append(feedback);
+      }
+      feedback.id = field.id + "-feedback";
+    }
+    field.classList.toggle("is-invalid", message !== "");
+    feedback.textContent = message;
+    return message === "";
+  }
+
+  function validateFields(rules, focusFirst) {
+    rules.forEach(function (rule) {
+      setFieldError(rule.field, rule.error);
+    });
+    const firstError = rules.find(function (rule) {
+      return rule.error !== "";
+    });
+    if (firstError && focusFirst) {
+      firstError.field.focus();
+    }
+    return firstError === undefined;
+  }
+
+  function bindValidation(form, getRules, result) {
+    let submitted = false;
+    form.noValidate = true;
+    getRules().forEach(function (rule) {
+      setFieldError(rule.field, "");
+    });
+
+    function update() {
+      hideMessage(result);
+      if (submitted && !validateFields(getRules(), false)) {
+        showMessage(result, "danger", "Please correct the highlighted fields.");
+      }
+    }
+
+    form.addEventListener("input", update);
+    form.addEventListener("change", update);
+    form.addEventListener("reset", function () {
+      submitted = false;
+      form.querySelectorAll(".is-invalid").forEach(function (field) {
+        setFieldError(field, "");
+      });
+      showMessage(result, "info", "Form cleared.");
+    });
+
+    return function () {
+      submitted = true;
+      const valid = validateFields(getRules(), true);
+      if (!valid) {
+        showMessage(result, "danger", "Please correct the highlighted fields.");
+      }
+      return valid;
+    };
+  }
+
+  function validEmail(value) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+  }
+
+  function validPhone(value) {
+    const digits = value.replace(/\D/g, "");
+    return /^[+\d\s()-]+$/.test(value) && digits.length >= 10 && digits.length <= 15;
+  }
+
+  function todayInPavlodar() {
+    return new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Almaty",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(new Date());
+  }
+
   return {
     products,
     findProduct,
@@ -364,5 +444,11 @@ const Store = (function () {
     setupCart,
     showMessage,
     hideMessage,
+    setFieldError,
+    validateFields,
+    bindValidation,
+    validEmail,
+    validPhone,
+    todayInPavlodar,
   };
 })();
