@@ -1,431 +1,208 @@
+"use strict";
+
 (function () {
-  'use strict';
-
-  /* ── 1. Constants and data ─────────────────────────────────────────────── */
-
-  var MIN_LEN = 20;
-  var MAX_LEN = 500;
-
-  var MONTHS = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
-
-  var CATEGORIES = ['Overall', 'Products', 'Delivery', 'Service'];
-
-  var RATING_OPTIONS = [
-    ['5', '★★★★★ – Excellent'],
-    ['4', '★★★★☆ – Good'],
-    ['3', '★★★☆☆ – Average'],
-    ['2', '★★☆☆☆ – Poor'],
-    ['1', '★☆☆☆☆ – Very poor']
-  ];
-
-  /* Seed reviews — distinct from the static "Customer voice" aside in the HTML */
-  var INITIAL_REVIEWS = [
-    {
-      name: 'Anna Petrovskaya',
-      category: 'Overall',
-      rating: 5,
-      text: 'Excellent range of materials. Staff helped me find everything for the repair without any fuss. Prices matched the website. Will be back.',
-      date: '2026-09-20T14:30:00'
-    },
-    {
-      name: 'Sergey Kolpakov',
-      category: 'Delivery',
-      rating: 4,
-      text: 'Delivery arrived on time and the driver helped move the OSB-3 sheets to the entrance. The only downside was the delivery time was only confirmed on the morning itself.',
-      date: '2026-10-01T09:15:00'
-    },
-    {
-      name: 'Irina Sharapova',
-      category: 'Products',
-      rating: 5,
-      text: 'Great stock of plasterboard and tile adhesive. Bought 20 bags and they were all the same production batch — important for consistent finish colour.',
-      date: '2026-10-05T11:00:00'
-    }
-  ];
-
-  /* ── 2. Date formatting ────────────────────────────────────────────────── */
-
-  function pad(n) {
-    return String(n).padStart(2, '0');
+  const unverifiedQuote = document.querySelector("#visit aside");
+  if (unverifiedQuote) {
+    unverifiedQuote.classList.add("d-none");
   }
+  const minLength = 20;
+  const maxLength = 500;
+  const categories = ["Overall", "Products", "Delivery", "Service"];
 
   function formatDate(isoString) {
-    var d = new Date(isoString);
     return (
-      d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear() +
-      ', ' + pad(d.getHours()) + ':' + pad(d.getMinutes())
+      new Intl.DateTimeFormat("en-GB", {
+        timeZone: "Asia/Almaty",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }).format(new Date(isoString)) + " (Pavlodar time)"
     );
   }
-
-  /* ── 3. Card renderer — called for both seed reviews and new submissions ── */
 
   function renderReview(review) {
-    var col = document.createElement('div');
-    col.className = 'col-12 col-md-6 col-lg-4';
+    const column = Store.makeElement("div", "col-12 col-md-6 col-lg-4");
+    const card = Store.makeElement("article", "card h-100 shadow-sm");
+    const body = Store.makeElement("div", "card-body d-flex flex-column");
+    const header = Store.makeElement(
+      "div",
+      "d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2",
+    );
+    header.append(Store.makeElement("h3", "card-title fs-6 fw-bold mb-0 text-break", review.name));
+    header.append(Store.makeElement("span", "badge bg-secondary", review.category));
+    body.append(header);
 
-    var card = document.createElement('article');
-    card.className = 'card h-100 shadow-sm';
-
-    var body = document.createElement('div');
-    body.className = 'card-body d-flex flex-column';
-
-    var header = document.createElement('div');
-    header.className = 'd-flex justify-content-between align-items-start mb-2';
-
-    var nameEl = document.createElement('h3');
-    nameEl.className = 'card-title fs-6 fw-bold mb-0 text-break';
-    nameEl.textContent = review.name;
-
-    var badge = document.createElement('span');
-    badge.className = 'badge bg-secondary ms-2 flex-shrink-0';
-    badge.textContent = review.category;
-
-    header.appendChild(nameEl);
-    header.appendChild(badge);
-
-    /* Stars hidden from screen readers; a visually-hidden span speaks them as text */
-    var starsWrapper = document.createElement('p');
-    starsWrapper.className = 'mb-1';
-
-    var starsVisible = document.createElement('span');
-    starsVisible.setAttribute('aria-hidden', 'true');
-    starsVisible.textContent = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
-
-    var starsLabel = document.createElement('span');
-    starsLabel.className = 'visually-hidden';
-    starsLabel.textContent = review.rating + ' out of 5 stars';
-
-    starsWrapper.appendChild(starsVisible);
-    starsWrapper.appendChild(starsLabel);
-
-    /* textContent prevents HTML injection from user input */
-    var textEl = document.createElement('p');
-    textEl.className = 'card-text flex-grow-1 mb-2 text-break';
-    textEl.textContent = review.text;
-
-    var footer = document.createElement('footer');
-    footer.className = 'small text-muted mt-auto';
-
-    var timeEl = document.createElement('time');
-    timeEl.dateTime = review.date;
-    timeEl.textContent = formatDate(review.date);
-    footer.appendChild(timeEl);
-
-    body.appendChild(header);
-    body.appendChild(starsWrapper);
-    body.appendChild(textEl);
-    body.appendChild(footer);
-    card.appendChild(body);
-    col.appendChild(card);
-
-    return col;
-  }
-
-  /* ── 4. Form element helpers ───────────────────────────────────────────── */
-
-  function makeGroup() {
-    var div = document.createElement('div');
-    div.className = 'mb-3';
-    return div;
-  }
-
-  function makeLabel(forId, text) {
-    var label = document.createElement('label');
-    label.htmlFor = forId;
-    label.className = 'form-label';
-    label.textContent = text;
-    return label;
-  }
-
-  /* Must be a following sibling of its control for Bootstrap's .is-invalid ~ .invalid-feedback to show */
-  function makeFeedback(id, text) {
-    var div = document.createElement('div');
-    div.id = id;
-    div.className = 'invalid-feedback';
-    div.textContent = text;
-    return div;
-  }
-
-  /* defaultSelected (not .selected) is what form.reset() restores to */
-  function makePlaceholderOption(label) {
-    var opt = document.createElement('option');
-    opt.value = '';
-    opt.textContent = label;
-    opt.disabled = true;
-    opt.defaultSelected = true;
-    return opt;
-  }
-
-  /* ── 5. Validation ─────────────────────────────────────────────────────── */
-
-  function clearValidation(form) {
-    form.querySelectorAll('.is-invalid, .is-valid').forEach(function (el) {
-      el.classList.remove('is-invalid', 'is-valid');
-    });
-  }
-
-  /* Caller prefixes text with ✓ or ✗ so the message isn't colour-only */
-  function showMsg(el, type, text) {
-    el.className = 'alert alert-' + type;
-    el.textContent = text;
-  }
-
-  function validateForm(form, fields, liveRegion) {
-    clearValidation(form);
-    var valid = true;
-
-    if (!fields.name.value.trim()) {
-      fields.name.classList.add('is-invalid');
-      valid = false;
-    } else {
-      fields.name.classList.add('is-valid');
+    if (review.rating !== null) {
+      const stars = Store.makeElement("p", "mb-1");
+      const visible = Store.makeElement(
+        "span",
+        "",
+        "★".repeat(review.rating) + "☆".repeat(5 - review.rating),
+      );
+      visible.setAttribute("aria-hidden", "true");
+      stars.append(
+        visible,
+        Store.makeElement("span", "visually-hidden", review.rating + " out of 5 stars"),
+      );
+      body.append(stars);
     }
-
-    if (!fields.category.value) {
-      fields.category.classList.add('is-invalid');
-      valid = false;
-    } else {
-      fields.category.classList.add('is-valid');
+    // textContent keeps submitted text as text, never HTML.
+    body.append(Store.makeElement("p", "card-text flex-grow-1 mb-2 text-break", review.text));
+    if (review.date) {
+      const footer = Store.makeElement("footer", "small text-muted mt-auto");
+      const time = Store.makeElement("time", "", formatDate(review.date));
+      time.dateTime = review.date;
+      footer.append(time);
+      body.append(footer);
     }
-
-    if (!fields.rating.value) {
-      fields.rating.classList.add('is-invalid');
-      valid = false;
-    } else {
-      fields.rating.classList.add('is-valid');
-    }
-
-    var len = fields.text.value.trim().length;
-    var textFeedback = document.getElementById('review-text-feedback');
-    if (len < MIN_LEN) {
-      fields.text.classList.add('is-invalid');
-      textFeedback.textContent =
-        'Please enter at least ' + MIN_LEN + ' characters (currently ' + len + ').';
-      valid = false;
-    } else if (len > MAX_LEN) {
-      fields.text.classList.add('is-invalid');
-      textFeedback.textContent = 'Please enter no more than ' + MAX_LEN + ' characters.';
-      valid = false;
-    } else {
-      fields.text.classList.add('is-valid');
-    }
-
-    if (!valid) {
-      showMsg(liveRegion, 'danger', '✗ Please correct the highlighted fields before posting.');
-      var firstInvalid = form.querySelector('.is-invalid');
-      if (firstInvalid !== null) {
-        firstInvalid.focus();
-      }
-    }
-
-    return valid;
+    card.append(body);
+    column.append(card);
+    return column;
   }
 
-  /* ── 6. Form builder ───────────────────────────────────────────────────── */
+  function makeField(id, label, tag) {
+    const group = Store.makeElement("div", "mb-3");
+    const labelElement = Store.makeElement("label", "form-label", label);
+    labelElement.htmlFor = id;
+    const control = Store.makeElement(tag, tag === "select" ? "form-select" : "form-control");
+    control.id = id;
+    control.name = id;
+    control.required = true;
+    control.setAttribute("aria-describedby", id + "-feedback");
+    const feedback = Store.makeElement("div", "invalid-feedback");
+    feedback.id = id + "-feedback";
+    group.append(labelElement, control, feedback);
+    return { group: group, control: control };
+  }
+
+  function addOption(select, value, label) {
+    const option = Store.makeElement("option", "", label);
+    option.value = value;
+    select.append(option);
+    return option;
+  }
 
   function buildForm() {
-    var wrapper = document.createElement('div');
-    wrapper.className = 'border rounded p-3 mt-3';
-
-    var formHeading = document.createElement('h3');
-    formHeading.id = 'review-form-heading';
-    formHeading.textContent = 'Write a review';
-    wrapper.appendChild(formHeading);
-
-    /* role="status" + aria-live="polite" — announces messages without interrupting the user */
-    var liveRegion = document.createElement('div');
-    liveRegion.id = 'review-msg';
-    liveRegion.setAttribute('role', 'status');
-    liveRegion.setAttribute('aria-live', 'polite');
-    liveRegion.className = 'alert d-none mt-2';
-    wrapper.appendChild(liveRegion);
-
-    var form = document.createElement('form');
-    form.id = 'review-form';
-    form.noValidate = true; /* JS handles validation instead of the browser */
-    form.setAttribute('aria-labelledby', 'review-form-heading');
-
-    /* ── Name ── */
-    var nameGroup = makeGroup();
-    nameGroup.appendChild(makeLabel('review-name', 'Your name'));
-    var nameInput = document.createElement('input');
-    nameInput.type = 'text';
-    nameInput.id = 'review-name';
-    nameInput.name = 'review-name';
-    nameInput.className = 'form-control';
-    nameInput.placeholder = 'Full name';
-    nameInput.required = true;
-    nameInput.setAttribute('aria-describedby', 'review-name-feedback');
-    nameGroup.appendChild(nameInput);
-    nameGroup.appendChild(makeFeedback('review-name-feedback', 'Please enter your name.'));
-    form.appendChild(nameGroup);
-
-    /* ── Category ── */
-    var catGroup = makeGroup();
-    catGroup.appendChild(makeLabel('review-category', 'Category'));
-    var catSelect = document.createElement('select');
-    catSelect.id = 'review-category';
-    catSelect.name = 'review-category';
-    catSelect.className = 'form-select';
-    catSelect.required = true;
-    catSelect.setAttribute('aria-describedby', 'review-category-feedback');
-    catSelect.appendChild(makePlaceholderOption('Choose a category'));
-    CATEGORIES.forEach(function (cat) {
-      var opt = document.createElement('option');
-      opt.value = cat;
-      opt.textContent = cat;
-      catSelect.appendChild(opt);
+    const wrapper = Store.makeElement("div", "border rounded p-3 mt-3");
+    const heading = Store.makeElement("h3", "", "Write a review");
+    heading.id = "review-form-heading";
+    const message = Store.makeElement("p", "alert d-none mt-2");
+    message.id = "review-msg";
+    message.setAttribute("role", "status");
+    message.setAttribute("aria-live", "polite");
+    message.setAttribute("aria-atomic", "true");
+    const form = Store.makeElement("form", "");
+    form.id = "review-form";
+    form.noValidate = true;
+    form.setAttribute("aria-labelledby", heading.id);
+    const name = makeField("review-name", "Your name", "input");
+    name.control.type = "text";
+    name.control.autocomplete = "name";
+    name.control.maxLength = 80;
+    const category = makeField("review-category", "Category", "select");
+    addOption(category.control, "", "Choose a category").defaultSelected = true;
+    categories.forEach(function (value) {
+      addOption(category.control, value, value);
     });
-    catGroup.appendChild(catSelect);
-    catGroup.appendChild(makeFeedback('review-category-feedback', 'Please choose a category.'));
-    form.appendChild(catGroup);
-
-    /* ── Rating ── */
-    var ratingGroup = makeGroup();
-    ratingGroup.appendChild(makeLabel('review-rating', 'Rating'));
-    var ratingSelect = document.createElement('select');
-    ratingSelect.id = 'review-rating';
-    ratingSelect.name = 'review-rating';
-    ratingSelect.className = 'form-select';
-    ratingSelect.required = true;
-    ratingSelect.setAttribute('aria-describedby', 'review-rating-feedback');
-    ratingSelect.appendChild(makePlaceholderOption('Choose a rating'));
-    RATING_OPTIONS.forEach(function (pair) {
-      var opt = document.createElement('option');
-      opt.value = pair[0];
-      opt.textContent = pair[1];
-      ratingSelect.appendChild(opt);
-    });
-    ratingGroup.appendChild(ratingSelect);
-    ratingGroup.appendChild(makeFeedback('review-rating-feedback', 'Please choose a rating.'));
-    form.appendChild(ratingGroup);
-
-    /* ── Review text + character counter ── */
-    var textGroup = makeGroup();
-    textGroup.appendChild(
-      makeLabel('review-text', 'Review (' + MIN_LEN + '–' + MAX_LEN + ' characters)')
+    const rating = makeField("review-rating", "Rating", "select");
+    addOption(rating.control, "", "Choose a rating").defaultSelected = true;
+    const ratings = ["Very poor", "Poor", "Average", "Good", "Excellent"];
+    for (let stars = 5; stars >= 1; stars -= 1) {
+      addOption(
+        rating.control,
+        String(stars),
+        "★".repeat(stars) + "☆".repeat(5 - stars) + " — " + ratings[stars - 1],
+      );
+    }
+    const text = makeField("review-text", "Review (20–500 characters)", "textarea");
+    text.control.rows = 4;
+    text.control.minLength = minLength;
+    text.control.maxLength = maxLength;
+    text.control.placeholder = "Tell us about your experience.";
+    text.control.setAttribute("aria-describedby", "review-text-counter review-text-feedback");
+    const counter = Store.makeElement("small", "form-text", "0 / " + maxLength);
+    counter.id = "review-text-counter";
+    counter.setAttribute("aria-live", "polite");
+    counter.setAttribute("aria-atomic", "true");
+    text.group.append(counter);
+    const submit = Store.makeElement("button", "btn btn-danger", "Add review");
+    submit.id = "review-submit";
+    submit.type = "submit";
+    form.append(name.group, category.group, rating.group, text.group, submit);
+    wrapper.append(
+      heading,
+      Store.makeElement(
+        "p",
+        "small",
+        "Choose a category and rating, then tell us about your experience.",
+      ),
+      message,
+      form,
     );
-    var textarea = document.createElement('textarea');
-    textarea.id = 'review-text';
-    textarea.name = 'review-text';
-    textarea.className = 'form-control';
-    textarea.rows = 4;
-    textarea.placeholder = 'Tell us about your experience with our products or service…';
-    textarea.required = true;
-    textarea.maxLength = MAX_LEN;
-    textarea.setAttribute('aria-describedby', 'review-text-counter review-text-feedback');
-    textGroup.appendChild(textarea);
 
-    var counter = document.createElement('small');
-    counter.id = 'review-text-counter';
-    counter.className = 'form-text';
-    counter.setAttribute('aria-live', 'polite');
-    counter.setAttribute('aria-atomic', 'true');
-    counter.textContent = '0 / ' + MAX_LEN;
-    textGroup.appendChild(counter);
+    function getRules() {
+      const length = text.control.value.trim().length;
+      return [
+        { field: name.control, error: name.control.value.trim() ? "" : "Enter your name." },
+        {
+          field: category.control,
+          error: categories.includes(category.control.value) ? "" : "Choose a category.",
+        },
+        {
+          field: rating.control,
+          error: /^[1-5]$/.test(rating.control.value) ? "" : "Choose a rating from 1 to 5.",
+        },
+        {
+          field: text.control,
+          error:
+            length >= minLength && length <= maxLength
+              ? ""
+              : "Enter 20–500 characters, excluding leading or trailing spaces (currently " +
+                length +
+                ").",
+        },
+      ];
+    }
 
-    textGroup.appendChild(
-      makeFeedback(
-        'review-text-feedback',
-        'Please enter between ' + MIN_LEN + ' and ' + MAX_LEN + ' characters.'
-      )
-    );
-    form.appendChild(textGroup);
-
-    /* ── Submit button ── */
-    var btnRow = document.createElement('div');
-    var submitBtn = document.createElement('button');
-    submitBtn.type = 'submit';
-    submitBtn.id = 'review-submit';
-    submitBtn.className = 'btn btn-danger';
-    submitBtn.textContent = 'Post review';
-    btnRow.appendChild(submitBtn);
-    form.appendChild(btnRow);
-
-    wrapper.appendChild(form);
-
-    /* ── Events ── */
-
-    textarea.addEventListener('input', function () {
-      counter.textContent = textarea.value.trim().length + ' / ' + MAX_LEN;
+    const validate = Store.bindValidation(form, getRules, message);
+    text.control.addEventListener("input", function () {
+      counter.textContent = text.control.value.trim().length + " / " + maxLength;
     });
-
-    var fields = {
-      name: nameInput,
-      category: catSelect,
-      rating: ratingSelect,
-      text: textarea
-    };
-
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-
-      liveRegion.className = 'alert d-none';
-      liveRegion.textContent = '';
-
-      if (!validateForm(form, fields, liveRegion)) {
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      if (!validate()) {
         return;
       }
-
-      var review = {
-        name: nameInput.value.trim(),
-        category: catSelect.value,
-        rating: parseInt(ratingSelect.value, 10),
-        text: textarea.value.trim(),
-        date: new Date().toISOString()
+      const review = {
+        name: name.control.value.trim(),
+        category: category.control.value,
+        rating: Number(rating.control.value),
+        text: text.control.value.trim(),
+        date: new Date().toISOString(),
       };
-
-      document.getElementById('review-list').appendChild(renderReview(review));
-
-      showMsg(liveRegion, 'success', '✓ Your review has been posted. Thank you!');
-
+      document.getElementById("review-list").append(renderReview(review));
       form.reset();
-      counter.textContent = '0 / ' + MAX_LEN;
-      clearValidation(form);
-      nameInput.focus();
+      counter.textContent = "0 / " + maxLength;
+      Store.showMessage(message, "success", "Your review has been added.");
+      name.control.focus();
     });
-
     return wrapper;
   }
 
-  /* ── 7. Section assembly ───────────────────────────────────────────────── */
-
-  function buildSection() {
-    var main = document.querySelector('main');
-    if (main === null) { return; }
-
-    var section = document.createElement('section');
-    section.id = 'reviews';
-    section.className = 'mb-4';
-    section.setAttribute('aria-labelledby', 'reviews-heading');
-
-    var heading = document.createElement('h2');
-    heading.id = 'reviews-heading';
-    heading.textContent = 'Customer reviews';
-    section.appendChild(heading);
-
-    var grid = document.createElement('div');
-    grid.id = 'review-list';
-    grid.className = 'row g-3 mb-4';
-    section.appendChild(grid);
-
-    INITIAL_REVIEWS.forEach(function (r) {
-      grid.appendChild(renderReview(r));
-    });
-
-    section.appendChild(buildForm());
-    main.appendChild(section);
-  }
-
-  /* ── 8. Init — safety net if script loads without defer ───────────────── */
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', buildSection);
-  } else {
-    buildSection();
-  }
-
-}());
+  const section = Store.makeElement("section", "mb-4");
+  section.id = "reviews";
+  section.setAttribute("aria-labelledby", "reviews-heading");
+  const heading = Store.makeElement("h2", "", "Reviews");
+  heading.id = "reviews-heading";
+  const grid = Store.makeElement("div", "row g-3 mb-4");
+  grid.id = "review-list";
+  section.append(
+    heading,
+    Store.makeElement("p", "", "Share your experience with our products, delivery or service."),
+    grid,
+    buildForm(),
+  );
+  document.querySelector("main").append(section);
+})();

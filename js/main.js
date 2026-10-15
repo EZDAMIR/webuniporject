@@ -64,6 +64,16 @@ const Store = (function () {
     });
   }
 
+  function filterProducts(items, query, category) {
+    const search = query.trim().toLowerCase();
+    return items.filter(function (product) {
+      const text = product.name + " " + product.specification + " " + product.category;
+      return (
+        (category === "all" || product.category === category) && text.toLowerCase().includes(search)
+      );
+    });
+  }
+
   function validQuantity(quantity) {
     return Number.isInteger(quantity) && quantity >= 1 && quantity <= maxQuantity;
   }
@@ -98,14 +108,123 @@ const Store = (function () {
     return prefix + "-" + Math.floor(100000 + Math.random() * 900000);
   }
 
-  function filterProducts(items, query, category) {
-    const search = query.trim().toLowerCase();
-    return items.filter(function (product) {
-      const text = product.name + " " + product.specification + " " + product.category;
-      return (
-        (category === "all" || product.category === category) && text.toLowerCase().includes(search)
+  function makeElement(tag, classes, text) {
+    const element = document.createElement(tag);
+    element.classList.add(...classes.split(" ").filter(Boolean));
+    if (text !== undefined) {
+      element.textContent = text;
+    }
+    return element;
+  }
+
+  function makeMessage(id) {
+    const message = makeElement("p", "alert d-none");
+    message.id = id;
+    message.setAttribute("role", "status");
+    message.setAttribute("aria-live", "polite");
+    message.setAttribute("aria-atomic", "true");
+    return message;
+  }
+
+  function showMessage(element, type, message) {
+    element.classList.remove("d-none", "alert-danger", "alert-success", "alert-info");
+    element.classList.add("alert", "alert-" + type);
+    element.textContent = message;
+  }
+
+  function hideMessage(element) {
+    element.classList.add("d-none");
+    element.textContent = "";
+  }
+
+  function setFieldError(field, message) {
+    let feedback = document.getElementById(field.id + "-feedback");
+    if (!feedback) {
+      feedback = field.parentElement.querySelector(".invalid-feedback");
+      if (!feedback) {
+        feedback = makeElement("div", "invalid-feedback");
+        field.parentElement.append(feedback);
+      }
+      feedback.id = field.id + "-feedback";
+    }
+    field.classList.toggle("is-invalid", message !== "");
+    field.setAttribute("aria-invalid", String(message !== ""));
+    if (feedback) {
+      feedback.textContent = message;
+      const ids = new Set(
+        (field.getAttribute("aria-describedby") || "").split(" ").filter(Boolean),
       );
+      ids.add(feedback.id);
+      field.setAttribute("aria-describedby", Array.from(ids).join(" "));
+    }
+    return message === "";
+  }
+
+  function validateFields(rules, focusFirst) {
+    rules.forEach(function (rule) {
+      setFieldError(rule.field, rule.error);
     });
+    const firstError = rules.find(function (rule) {
+      return rule.error !== "";
+    });
+    if (firstError && focusFirst) {
+      firstError.field.focus();
+    }
+    return firstError === undefined;
+  }
+
+  function bindValidation(form, getRules, result) {
+    let submitted = false;
+    form.noValidate = true;
+    result.setAttribute("aria-live", "polite");
+    result.setAttribute("aria-atomic", "true");
+    getRules().forEach(function (rule) {
+      setFieldError(rule.field, "");
+    });
+
+    function update() {
+      hideMessage(result);
+      if (submitted && !validateFields(getRules(), false)) {
+        showMessage(result, "danger", "Please correct the highlighted fields.");
+      }
+    }
+
+    form.addEventListener("input", update);
+    form.addEventListener("change", update);
+    form.addEventListener("reset", function () {
+      submitted = false;
+      form.querySelectorAll(".is-invalid").forEach(function (field) {
+        setFieldError(field, "");
+      });
+      showMessage(result, "info", "Form cleared.");
+    });
+
+    return function () {
+      submitted = true;
+      const valid = validateFields(getRules(), true);
+      if (!valid) {
+        showMessage(result, "danger", "Please correct the highlighted fields.");
+      }
+      return valid;
+    };
+  }
+
+  function validEmail(value) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+  }
+
+  function validPhone(value) {
+    const digits = value.replace(/\D/g, "");
+    return /^[+\d\s()-]+$/.test(value) && digits.length >= 10 && digits.length <= 15;
+  }
+
+  function todayInPavlodar() {
+    return new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Almaty",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(new Date());
   }
 
   function loadCart() {
@@ -203,44 +322,17 @@ const Store = (function () {
     });
   }
 
-  function makeElement(tag, classes, text) {
-    const element = document.createElement(tag);
-    element.classList.add(...classes.split(" ").filter(Boolean));
-    if (text !== undefined) {
-      element.textContent = text;
-    }
-    return element;
-  }
-
-  function makeMessage(id) {
-    const message = makeElement("p", "alert d-none");
-    message.id = id;
-    message.setAttribute("role", "status");
-    message.setAttribute("aria-live", "polite");
-    message.setAttribute("aria-atomic", "true");
-    return message;
-  }
-
-  function showMessage(element, type, message) {
-    element.classList.remove("d-none", "alert-danger", "alert-success", "alert-info");
-    element.classList.add("alert", "alert-" + type);
-    element.textContent = message;
-  }
-
-  function hideMessage(element) {
-    element.classList.add("d-none");
-    element.textContent = "";
-  }
-
   function cartButton(label, action, id, disabled) {
     const button = makeElement("button", "btn btn-outline-secondary btn-sm", label);
     button.type = "button";
     button.dataset.cartAction = action;
     button.dataset.productId = id;
+    button.setAttribute("aria-label", label + " " + findProduct(id).name);
     button.disabled = disabled;
     return button;
   }
 
+  // Both pages use this renderer for every cart line.
   function renderCartItem(line) {
     const row = makeElement("tr", "");
     row.dataset.productId = line.product.id;
@@ -272,12 +364,18 @@ const Store = (function () {
     }
     cartView.list.replaceChildren(...getCartLines(cart).map(renderCartItem));
     const empty = cart.length === 0;
+    cartView.empty.classList.toggle("d-none", !empty);
+    cartView.wrapper.classList.toggle("d-none", empty);
     cartView.total.textContent = formatMoney(getCartTotal(cart));
     cartView.clear.disabled = empty;
-    cartView.checkout.disabled = empty;
+    cartView.checkout.disabled = empty || (cartView.requiresStorage && !storageAvailable);
+    cartView.storage.classList.toggle("d-none", storageAvailable);
   }
 
   function setupCart(section, checkout, requiresStorage) {
+    const heading = section.querySelector("h2");
+    heading.id = heading.id || "cart-heading";
+    heading.tabIndex = -1;
     let table = section.querySelector("table");
     if (!table) {
       table = makeElement("table", "table table-bordered");
@@ -305,8 +403,19 @@ const Store = (function () {
     table.tHead.rows[0].append(action);
     table.tFoot.rows[0].insertCell();
     const wrapper = table.parentElement;
+    wrapper.tabIndex = 0;
+    wrapper.setAttribute("role", "region");
+    wrapper.setAttribute("aria-label", "Cart materials");
     const message = makeMessage("cart-message");
-    wrapper.before(message);
+    const empty = makeMessage("cart-empty");
+    showMessage(empty, "info", "Your cart is empty. Add materials to prepare an estimate.");
+    const storage = makeMessage("cart-storage-note");
+    showMessage(
+      storage,
+      "info",
+      "Browser storage is unavailable. Select materials on the Order and delivery page and keep that page open to prepare your request.",
+    );
+    wrapper.before(message, empty, storage);
     const clear = makeElement("button", "btn btn-outline-secondary", "Clear cart");
     clear.type = "button";
     clear.id = "cart-clear";
@@ -320,6 +429,8 @@ const Store = (function () {
       list: table.tBodies[0],
       total: table.tFoot.rows[0].cells[1],
       wrapper,
+      empty,
+      storage,
       clear,
       checkout,
       requiresStorage,
@@ -339,106 +450,33 @@ const Store = (function () {
       } else {
         removeFromCart(id);
       }
+      const replacement = Array.from(cartView.list.querySelectorAll("button")).find(
+        function (item) {
+          return (
+            item.dataset.productId === id && item.dataset.cartAction === action && !item.disabled
+          );
+        },
+      );
+      const fallback = cartView.list.querySelector("button:not(:disabled)") || heading;
+      (replacement || fallback).focus();
     });
     clear.addEventListener("click", function () {
       clearCart();
+      heading.focus();
     });
     renderCart();
-  }
-
-  function setFieldError(field, message) {
-    let feedback = document.getElementById(field.id + "-feedback");
-    if (!feedback) {
-      feedback = field.parentElement.querySelector(".invalid-feedback");
-      if (!feedback) {
-        feedback = makeElement("div", "invalid-feedback");
-        field.parentElement.append(feedback);
-      }
-      feedback.id = field.id + "-feedback";
-    }
-    field.classList.toggle("is-invalid", message !== "");
-    feedback.textContent = message;
-    return message === "";
-  }
-
-  function validateFields(rules, focusFirst) {
-    rules.forEach(function (rule) {
-      setFieldError(rule.field, rule.error);
-    });
-    const firstError = rules.find(function (rule) {
-      return rule.error !== "";
-    });
-    if (firstError && focusFirst) {
-      firstError.field.focus();
-    }
-    return firstError === undefined;
-  }
-
-  function bindValidation(form, getRules, result) {
-    let submitted = false;
-    form.noValidate = true;
-    getRules().forEach(function (rule) {
-      setFieldError(rule.field, "");
-    });
-
-    function update() {
-      hideMessage(result);
-      if (submitted && !validateFields(getRules(), false)) {
-        showMessage(result, "danger", "Please correct the highlighted fields.");
-      }
-    }
-
-    form.addEventListener("input", update);
-    form.addEventListener("change", update);
-    form.addEventListener("reset", function () {
-      submitted = false;
-      form.querySelectorAll(".is-invalid").forEach(function (field) {
-        setFieldError(field, "");
-      });
-      showMessage(result, "info", "Form cleared.");
-    });
-
-    return function () {
-      submitted = true;
-      const valid = validateFields(getRules(), true);
-      if (!valid) {
-        showMessage(result, "danger", "Please correct the highlighted fields.");
-      }
-      return valid;
-    };
-  }
-
-  function validEmail(value) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
-  }
-
-  function validPhone(value) {
-    const digits = value.replace(/\D/g, "");
-    return /^[+\d\s()-]+$/.test(value) && digits.length >= 10 && digits.length <= 15;
-  }
-
-  function todayInPavlodar() {
-    return new Intl.DateTimeFormat("en-CA", {
-      timeZone: "Asia/Almaty",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    }).format(new Date());
   }
 
   return {
     products,
     findProduct,
+    filterProducts,
     validQuantity,
     formatMoney,
     getSubtotal,
     getCartLines,
     getCartTotal,
     createReference,
-    filterProducts,
-    addToCart,
-    getCart,
-    clearCart,
     makeElement,
     makeMessage,
     setupCart,
@@ -450,5 +488,8 @@ const Store = (function () {
     validEmail,
     validPhone,
     todayInPavlodar,
+    addToCart,
+    getCart,
+    clearCart,
   };
 })();
