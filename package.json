@@ -1,12 +1,11 @@
 {
   "name": "webdev_project",
   "version": "1.0.0",
-  "description": "Assignment 1 website for a real building materials store at 199 Kamzina Street, Pavlodar. The site uses plain semantic HTML without CSS, JavaScript, frameworks or templates.",
+  "description": "Assignment website for a building materials store at 199 Kamzina Street, Pavlodar. Built with HTML, Bootstrap and plain JavaScript.",
   "main": "index.js",
   "scripts": {
     "format": "prettier --write \"**/*.html\"",
-    "format:check": "prettier --check \"**/*.html\"",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "format:check": "prettier --check \"**/*.html\""
   },
   "keywords": [],
   "author": "",

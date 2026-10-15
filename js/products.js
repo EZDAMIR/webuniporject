@@ -31,6 +31,8 @@
   all.value = "all";
   category.append(all);
   categoryGroup.append(categoryLabel, category);
+  search.setAttribute("aria-controls", list.id);
+  category.setAttribute("aria-controls", list.id);
   const resetGroup = Store.makeElement("div", "col-12 col-md-2");
   const reset = Store.makeElement("button", "btn btn-outline-secondary", "Reset filters");
   reset.type = "button";
@@ -38,7 +40,9 @@
   controls.append(searchGroup, categoryGroup, resetGroup);
   const count = Store.makeMessage("product-count");
   const result = Store.makeMessage("catalogue-message");
-  section.querySelector("h2").after(controls, count, result);
+  const empty = Store.makeMessage("products-empty");
+  Store.showMessage(empty, "info", "No materials match. Try another term or use Reset filters.");
+  section.querySelector("h2").after(controls, count, result, empty);
   const actionHeading = Store.makeElement("th", "", "Action");
   actionHeading.scope = "col";
   table.tHead.rows[0].append(actionHeading);
@@ -70,6 +74,7 @@
     const button = Store.makeElement("button", "btn btn-danger btn-sm", "Add to cart");
     button.type = "button";
     button.dataset.productId = product.id;
+    button.setAttribute("aria-label", "Add " + product.name + " to cart");
     actions.append(button);
     row.append(
       name,
@@ -89,6 +94,7 @@
       "info",
       matches.length + " of " + Store.products.length + " materials shown.",
     );
+    empty.classList.toggle("d-none", matches.length !== 0);
     clearSearch.classList.toggle("d-none", search.value === "");
     Store.hideMessage(result);
     updateSelectedRows();
@@ -129,12 +135,14 @@
   clearSearch.addEventListener("click", function () {
     search.value = "";
     updateProducts();
+    search.focus();
   });
   reset.addEventListener("click", function () {
     search.value = "";
     category.value = "all";
     updateProducts();
     Store.showMessage(result, "info", "Filters reset. All six materials are shown.");
+    search.focus();
   });
   list.addEventListener("click", function (event) {
     const button = event.target.closest("button[data-product-id]");
