@@ -185,28 +185,29 @@ const Store = (function () {
     element.textContent = "";
   }
 
-  // An empty message clears the error; other text describes the problem.
+  // .siblings(), .attr(), .text() and .toggleClass() replace native DOM operations.
+  // The code is clearer, with a similar length because it preserves ARIA links.
   function setFieldError(field, message) {
-    let feedback = document.getElementById(field.id + "-feedback");
-    if (!feedback) {
-      feedback = field.parentElement.querySelector(".invalid-feedback");
-      if (!feedback) {
-        feedback = makeElement("div", "invalid-feedback");
-        field.parentElement.append(feedback);
+    const $field = $(field);
+    const feedbackId = $field.attr("id") + "-feedback";
+    let $feedback = $("#" + feedbackId);
+    if (!$feedback.length) {
+      $feedback = $field.siblings(".invalid-feedback").first();
+      if (!$feedback.length) {
+        $feedback = $field.parent().find(".invalid-feedback").first();
       }
-      feedback.id = field.id + "-feedback";
+      if (!$feedback.length) {
+        $feedback = $("<div>").addClass("invalid-feedback").appendTo($field.parent());
+      }
+      $feedback.attr("id", feedbackId);
     }
-    field.classList.toggle("is-invalid", message !== "");
-    field.setAttribute("aria-invalid", String(message !== ""));
-    if (feedback) {
-      feedback.textContent = message;
-      // Set avoids duplicate IDs while preserving existing help-text links.
-      const ids = new Set(
-        (field.getAttribute("aria-describedby") || "").split(" ").filter(Boolean),
-      );
-      ids.add(feedback.id);
-      field.setAttribute("aria-describedby", Array.from(ids).join(" "));
-    }
+    const ids = new Set(($field.attr("aria-describedby") || "").split(/\s+/).filter(Boolean));
+    ids.add(feedbackId);
+    $field.toggleClass("is-invalid", message !== "").attr({
+      "aria-invalid": String(message !== ""),
+      "aria-describedby": [...ids].join(" "),
+    });
+    $feedback.text(message);
     return message === "";
   }
 
