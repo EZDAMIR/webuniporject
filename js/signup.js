@@ -1,77 +1,64 @@
 "use strict";
 
-(function () {
-  const form = document.getElementById("signup-form");
-  const name = document.getElementById("signup-name");
-  const email = document.getElementById("signup-email");
-  const phone = document.getElementById("signup-phone");
-  const password = document.getElementById("signup-password");
-  const confirm = document.getElementById("signup-confirm");
-  const result = document.getElementById("signup-result");
-  form.before(Store.makeElement("p", "alert alert-info", "Telephone is optional."));
-  document.getElementById("signup-submit").textContent = "Continue";
-  name.autocomplete = "name";
-  email.autocomplete = "email";
-  phone.autocomplete = "tel";
-  password.autocomplete = "new-password";
-  confirm.autocomplete = "new-password";
-  const passwordHelp = Store.makeElement(
+// jQuery 3.7.1: ready waits until the form fields exist in the DOM.
+$(function () {
+  const $form = $("#signup-form");
+  const $name = $("#signup-name").attr("autocomplete", "name");
+  const $email = $("#signup-email").attr("autocomplete", "email");
+  const $phone = $("#signup-phone").attr("autocomplete", "tel");
+  const $password = $("#signup-password").attr("autocomplete", "new-password");
+  const $confirm = $("#signup-confirm").attr("autocomplete", "new-password");
+  const $result = $("#signup-result");
+  $form.before(Store.makeElement("p", "alert alert-info", "Telephone is optional."));
+  $("#signup-submit").text("Continue");
+  const $help = Store.makeElement(
     "p",
     "form-text",
     "Use at least 8 characters, excluding leading or trailing spaces.",
-  );
-  passwordHelp.id = "signup-password-help";
-  password.before(passwordHelp);
-  password.setAttribute("aria-describedby", passwordHelp.id);
+  ).attr("id", "signup-password-help");
+  $password.before($help).attr("aria-describedby", $help.attr("id"));
 
-  // Build rules from current values; "" means the field is valid.
   function getRules() {
     return [
       {
-        field: name,
-        error: name.value.trim().length >= 2 ? "" : "Enter a name with at least 2 characters.",
+        field: $name,
+        error: $name.val().trim().length >= 2 ? "" : "Enter a name with at least 2 characters.",
       },
       {
-        field: email,
-        error: Store.validEmail(email.value)
+        field: $email,
+        error: Store.validEmail($email.val())
           ? ""
           : "Enter a valid email address, such as name@example.com.",
       },
       {
-        // A blank phone is allowed; a supplied number must pass validation.
-        field: phone,
+        field: $phone,
         error:
-          !phone.value.trim() || Store.validPhone(phone.value.trim())
+          !$phone.val().trim() || Store.validPhone($phone.val().trim())
             ? ""
-            : "Enter 10–15 digits, using only +, spaces, brackets or hyphens.",
+            : "Enter 10–15 digits with an optional leading +, spaces, brackets or hyphens.",
       },
       {
-        field: password,
+        field: $password,
         error:
-          password.value.trim().length >= 8
+          $password.val().trim().length >= 8
             ? ""
             : "Use at least 8 characters, excluding leading or trailing spaces.",
       },
       {
-        // Compare full password values, including any spaces.
-        field: confirm,
+        field: $confirm,
         error:
-          confirm.value !== "" && confirm.value === password.value
+          $confirm.val().trim() !== "" && $confirm.val().trim() === $password.val().trim()
             ? ""
             : "Repeat the password exactly.",
       },
     ];
   }
-
-  const validate = Store.bindValidation(form, getRules, result);
-  form.addEventListener("submit", function (event) {
-    // Check locally without submitting or reloading the page.
+  const validate = Store.bindValidation($form, getRules, $result);
+  $form.on("submit", function (event) {
+    // Without preventDefault, GET would put the password in the URL and reload the page.
     event.preventDefault();
-    if (!validate()) {
-      return;
-    }
-    // Restore defaults after validation; this does not create an account.
-    form.reset();
-    Store.showMessage(result, "success", "Your details have been checked.");
+    if (!validate()) return;
+    $form.trigger("reset");
+    Store.showMessage($result, "success", "Your details have been checked.");
   });
-})();
+});

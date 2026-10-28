@@ -1,60 +1,68 @@
 "use strict";
 
-(function () {
-  const form = document.getElementById("order-form");
-  const result = document.getElementById("order-confirmation");
-  const errors = document.getElementById("order-errors");
-  const name = document.getElementById("customer-name");
-  const email = document.getElementById("customer-email");
-  const phone = document.getElementById("customer-phone");
-  const date = document.getElementById("preferred-date");
-  const address = document.getElementById("delivery-address");
-  const entrance = document.getElementById("delivery-entrance");
-  const contact = document.getElementById("delivery-contact");
-  const notes = document.getElementById("order-notes");
-  const consent = document.getElementById("order-consent");
-  const collection = document.getElementById("method-collection");
-  const delivery = document.getElementById("method-delivery");
-  const submit = document.getElementById("order-submit");
-  const summary = document.getElementById("order-summary");
-  const selectionMessage = Store.makeMessage("selection-message");
-  // Prevent repeated confirmation until the form or cart changes.
+// jQuery 3.7.1: ready waits for the DOM; main.js initializes shared helpers first.
+$(function () {
+  const $form = $("#order-form");
+  const $result = $("#order-confirmation");
+  const $errors = $("#order-errors");
+  const $name = $("#customer-name").attr("autocomplete", "name");
+  const $email = $("#customer-email").attr("autocomplete", "email");
+  const $phone = $("#customer-phone").attr("autocomplete", "tel");
+  const $date = $("#preferred-date").attr("min", Store.todayInPavlodar());
+  const $address = $("#delivery-address").attr({ autocomplete: "address-line1", maxlength: 200 });
+  const $entrance = $("#delivery-entrance").attr("maxlength", 80);
+  const $contact = $("#delivery-contact").attr("maxlength", 80);
+  const $notes = $("#order-notes").attr("maxlength", 1000);
+  const $consent = $("#order-consent").prop("required", true);
+  const $collection = $("#method-collection").prop({ checked: true, defaultChecked: true });
+  const $delivery = $("#method-delivery");
+  const $submit = $("#order-submit").text("Review request");
+  const $summary = $("#order-summary");
+  const $selectionMessage = Store.makeMessage("selection-message");
   let completed = false;
 
-  form.before(
+  $form.before(
     Store.makeElement(
       "p",
       "alert alert-info",
       "Confirm prices and availability with the store before arranging collection or delivery.",
     ),
   );
-  Store.hideMessage(result);
-  submit.textContent = "Review request";
-  collection.checked = true;
-  collection.defaultChecked = true;
-  date.min = Store.todayInPavlodar();
-  name.autocomplete = "name";
-  email.autocomplete = "email";
-  phone.autocomplete = "tel";
-  address.autocomplete = "address-line1";
-  consent.required = true;
-  document.querySelector('label[for="order-consent"]').textContent =
-    "I have checked my contact details, material quantities and collection or delivery preferences.";
-  document.querySelector("#delivery-block .small").textContent =
-    "Delivery is within Pavlodar. Its fee is excluded from the goods total and must be confirmed with the store.";
-  document.getElementById("order-row-1").before(selectionMessage);
-  document.querySelector("#order-row-1").parentElement.querySelector("p").textContent =
-    "Choose a material and a whole quantity from 1 to 999, then click Add to cart. Either row can add materials; the cart holds your selections.";
-  document.getElementById("quantity-unit").textContent = "Unit shown in the selected material.";
-  // Configure both product rows with the same function.
+  Store.hideMessage($result);
+  $('label[for="order-consent"]').text(
+    "I have checked my contact details, material quantities and collection or delivery preferences.",
+  );
+  $("#delivery-block .small").text(
+    "Delivery is within Pavlodar. Its fee is excluded from the goods total and must be confirmed with the store.",
+  );
+  $("#order-row-1")
+    .before($selectionMessage)
+    .parent()
+    .find("p")
+    .first()
+    .text(
+      "Choose a material and a whole quantity from 1 to 999, then click Add to cart. Either row can add materials; the cart holds your selections.",
+    );
+  $("#quantity-unit").text("Unit shown in the selected material.");
   const selections = [1, 2].map(setupSelection);
+  const savedCart = Store.getCart();
+  if (savedCart.length) {
+    selections[0].product.val(savedCart[0].id);
+    selections[0].quantity.val(savedCart[0].quantity);
+    selections[0].refresh();
+  }
 
-  summary.querySelector("p").textContent =
-    "Your cart and live estimate appear below. The total covers goods only; confirm any delivery fee with the store.";
-  Store.setupCart(summary, submit, false);
-  const details = Store.makeElement("div", "mt-3");
-  details.setAttribute("aria-live", "polite");
-  details.setAttribute("aria-atomic", "true");
+  $summary
+    .find("p")
+    .first()
+    .text(
+      "Your cart and live estimate appear below. The total covers goods only; confirm any delivery fee with the store.",
+    );
+  Store.setupCart($summary, $submit, false);
+  const $details = Store.makeElement("div", "mt-3").attr({
+    "aria-live": "polite",
+    "aria-atomic": "true",
+  });
   [
     "summary-customer",
     "summary-contact",
@@ -63,245 +71,222 @@
     "summary-total",
     "summary-notes",
   ].forEach(function (id) {
-    const paragraph = Store.makeElement("p", "text-break");
-    paragraph.id = id;
-    details.append(paragraph);
+    Store.makeElement("p", "text-break").attr("id", id).appendTo($details);
   });
-  result.before(details);
+  $result.before($details);
 
   function setupSelection(index) {
-    const product = document.getElementById("product-" + index);
-    const quantity = document.getElementById("qty-" + index);
-    const row = document.getElementById("order-row-" + index);
-    // Keep the placeholder and rebuild options from the shared products.
-    product.replaceChildren(product.options[0]);
-    // Validate selection rows when adding an item; unused rows may stay blank.
-    product.required = false;
-    quantity.required = false;
-    quantity.max = "999";
-    quantity.step = "1";
-    quantity.defaultValue = "1";
+    const $product = $("#product-" + index);
+    const $quantity = $("#qty-" + index).attr({ max: 999, step: 1 });
+    const $row = $("#order-row-" + index);
+    // Preserve required/min from HTML; the second row remains optional.
+    const $placeholder = $product.find("option").first().detach();
+    $product.empty().append($placeholder);
     Store.products.forEach(function (item) {
-      const option = Store.makeElement(
-        "option",
-        "",
-        item.name +
-          " — " +
-          item.unit +
-          ", " +
-          item.specification +
-          " — " +
-          Store.formatMoney(item.price),
-      );
-      option.value = item.id;
-      product.append(option);
+      const label = `${item.name} — ${item.unit}, ${item.specification} — ${Store.formatMoney(item.price)}`;
+      Store.makeElement("option", "", label).val(item.id).appendTo($product);
     });
-    const actions = Store.makeElement("div", "col-12");
-    const preview = Store.makeMessage("selection-subtotal-" + index);
-    const add = Store.makeElement("button", "btn btn-danger", "Add to cart");
-    add.type = "button";
-    add.id = "add-material-" + index;
-    add.setAttribute("aria-label", "Add product from row " + index + " to cart");
-    actions.append(preview, add);
-    row.append(actions);
+    const $preview = Store.makeMessage("selection-subtotal-" + index);
+    const $add = Store.makeElement("button", "btn btn-danger", "Add to cart").attr({
+      type: "button",
+      id: "add-material-" + index,
+      "aria-label": "Add product from row " + index + " to cart",
+    });
+    $row.append(Store.makeElement("div", "col-12").append($preview, $add));
 
-    function refresh() {
-      const selected = Store.findProduct(product.value);
-      // Input values are text; convert the quantity before calculating.
-      const amount = Number(quantity.value);
-      row.classList.toggle("selected-row", selected !== undefined);
-      if (selected && Store.validQuantity(amount)) {
-        Store.showMessage(
-          preview,
-          "info",
-          amount +
-            " × " +
-            selected.unit +
-            " · Subtotal: " +
-            Store.formatMoney(Store.getSubtotal(selected.price, amount)),
-        );
-      } else {
-        Store.showMessage(preview, "info", "Choose a material and a whole quantity from 1 to 999.");
-      }
-      if (product.classList.contains("is-invalid")) {
-        Store.setFieldError(product, selected ? "" : "Choose a material to add.");
-      }
-      if (quantity.classList.contains("is-invalid")) {
-        Store.setFieldError(
-          quantity,
-          Store.validQuantity(amount) ? "" : "Enter a whole quantity from 1 to 999.",
-        );
-      }
-      Store.hideMessage(selectionMessage);
-    }
-
-    add.addEventListener("click", function () {
-      const rules = [
+    function rules(forceRequired) {
+      const active =
+        forceRequired ||
+        $product.prop("required") ||
+        $product.val() !== "" ||
+        $quantity.val() !== "";
+      return [
         {
-          field: product,
-          error: Store.findProduct(product.value) ? "" : "Choose a material to add.",
+          field: $product,
+          error: !active || Store.findProduct($product.val()) ? "" : "Choose a material to add.",
         },
         {
-          field: quantity,
-          error: Store.validQuantity(Number(quantity.value))
-            ? ""
-            : "Enter a whole quantity from 1 to 999.",
+          field: $quantity,
+          error:
+            !active || Store.validQuantity(Number($quantity.val()))
+              ? ""
+              : "Enter a whole quantity from 1 to 999.",
         },
       ];
-      if (!Store.validateFields(rules, true)) {
+    }
+    function refresh() {
+      const selected = Store.findProduct($product.val());
+      const amount = Number($quantity.val());
+      $row.toggleClass("selected-row", selected !== undefined);
+      let preview = "Choose a material and a whole quantity from 1 to 999.";
+      if (selected && Store.validQuantity(amount)) {
+        const subtotal = Store.formatMoney(Store.getSubtotal(selected.price, amount));
+        preview = `${amount} × ${selected.unit} · Subtotal: ${subtotal}`;
+      }
+      Store.showMessage($preview, "info", preview);
+      rules(false).forEach(function (rule) {
+        if (rule.field.hasClass("is-invalid")) Store.setFieldError(rule.field, rule.error);
+      });
+      Store.hideMessage($selectionMessage);
+    }
+    $add.on("click", function () {
+      if (!Store.validateFields(rules(true), true)) {
         Store.showMessage(
-          selectionMessage,
+          $selectionMessage,
           "danger",
           "Choose a material and a valid quantity before adding it.",
         );
         return;
       }
-      const response = Store.addToCart(product.value, Number(quantity.value));
+      const response = Store.addToCart($product.val(), Number($quantity.val()));
       Store.showMessage(
-        selectionMessage,
+        $selectionMessage,
         response.success ? "success" : "danger",
         response.message,
       );
     });
-    product.addEventListener("change", refresh);
-    quantity.addEventListener("input", refresh);
+    $product.on("change", refresh);
+    $quantity.on("input", refresh);
     refresh();
-    return { product: product, refresh: refresh };
+    return { product: $product, quantity: $quantity, refresh, rules };
   }
 
-  // Read current values; an empty error string means the check passed.
   function getRules() {
+    const deliverySelected = $delivery.is(":checked");
     return [
       {
-        field: name,
-        error: name.value.trim().length >= 2 ? "" : "Enter a name with at least 2 characters.",
+        field: $name,
+        error: $name.val().trim().length >= 2 ? "" : "Enter a name with at least 2 characters.",
       },
       {
-        field: email,
-        error: Store.validEmail(email.value)
+        field: $email,
+        error: Store.validEmail($email.val())
           ? ""
           : "Enter a valid email address, such as name@example.com.",
       },
       {
-        field: phone,
-        error: Store.validPhone(phone.value.trim())
+        field: $phone,
+        error: Store.validPhone($phone.val().trim())
           ? ""
-          : "Enter 10–15 digits, using only +, spaces, brackets or hyphens.",
+          : "Enter 10–15 digits with an optional leading +, spaces, brackets or hyphens.",
       },
       {
-        field: date,
+        field: $date,
         error:
-          date.value && date.value >= Store.todayInPavlodar()
+          $date.val() && $date.val() >= Store.todayInPavlodar()
             ? ""
             : "Choose today or a future date in Pavlodar.",
       },
+      ...selections.flatMap(function (selection) {
+        return selection.rules(false);
+      }),
       {
-        field: address,
-        error:
-          !delivery.checked || address.value.trim().length >= 5
-            ? ""
-            : "Enter a street and building number (at least 5 characters).",
+        field: $collection,
+        error: $form.find('input[name="order-method"]:checked').length
+          ? ""
+          : "Choose collection or delivery.",
       },
       {
-        field: consent,
-        error: consent.checked ? "" : "Confirm your details and preferences before continuing.",
+        field: $address,
+        error:
+          !deliverySelected ||
+          ($address.val().trim().length >= 5 && $address.val().trim().length <= 200)
+            ? ""
+            : "Enter a street and building number (5–200 characters).",
+      },
+      {
+        field: $consent,
+        error: $consent.is(":checked")
+          ? ""
+          : "Confirm your details and preferences before continuing.",
       },
     ];
   }
 
-  // Hide and disable delivery fields when collection is selected.
-  // .find().prop() and .toggleClass() replace native queries, loops and classList.
-  // The equivalent DOM updates are shorter and clearer.
+  // Rewrite 3: .find().prop() and .toggleClass() replace querySelectorAll and classList.
+  // The DOM updates are shorter and clearer than the original loops.
   function updateMethod() {
-    const deliverySelected = $(delivery).is(":checked");
-    $("#delivery-block").toggleClass("d-none", !deliverySelected).find("input")
-      .prop("disabled", !deliverySelected);
+    const deliverySelected = $delivery.is(":checked");
+    const $block = $("#delivery-block");
+    $block.toggleClass("d-none", !deliverySelected).find("input").prop("disabled", !deliverySelected);
+    $address.prop("required", deliverySelected);
     $("#collection-block").toggleClass("d-none", deliverySelected);
-    $(address).prop("required", deliverySelected);
     if (!deliverySelected) {
-      Store.setFieldError(address, "");
+      $block.find("input").each(function () {
+        Store.setFieldError($(this), "");
+      });
     }
   }
 
-  // Refresh displayed details and totals from the current form and cart.
   function updateSummary() {
     const cart = Store.getCart();
-    document.getElementById("summary-customer").textContent =
-      name.value.trim() || "Customer details not entered yet.";
-    document.getElementById("summary-contact").textContent =
-      [email.value.trim(), phone.value.trim()].filter(Boolean).join(" · ") ||
-      "Contact details not entered yet.";
-    document.getElementById("summary-date").textContent = date.value || "Choose a preferred date.";
-    if (delivery.checked) {
-      document.getElementById("summary-method").textContent =
-        "Delivery: " +
-        ([address.value.trim(), entrance.value.trim(), contact.value.trim()]
+    $("#summary-customer").text($name.val().trim() || "Customer details not entered yet.");
+    $("#summary-contact").text(
+      [$email.val().trim(), $phone.val().trim()].filter(Boolean).join(" · ") ||
+        "Contact details not entered yet.",
+    );
+    $("#summary-date").text($date.val() || "Choose a preferred date.");
+    if ($delivery.is(":checked")) {
+      const address =
+        [$address.val().trim(), $entrance.val().trim(), $contact.val().trim()]
           .filter(Boolean)
-          .join(", ") || "Enter a street and building number.") +
-        " Delivery fee is excluded.";
+          .join(", ") || "Enter a street and building number.";
+      $("#summary-method").text(`Delivery: ${address} Delivery fee is excluded.`);
     } else {
-      document.getElementById("summary-method").textContent =
-        "Collection: Kamzina Street 199, Pavlodar. No delivery charge.";
+      $("#summary-method").text("Collection: Kamzina Street 199, Pavlodar. No delivery charge.");
     }
-    document.getElementById("summary-total").textContent =
-      "Goods total: " + Store.formatMoney(Store.getCartTotal(cart));
-    const summaryNotes = document.getElementById("summary-notes");
-    summaryNotes.textContent = "Notes: " + notes.value.trim();
-    summaryNotes.classList.toggle("d-none", notes.value.trim() === "");
-    submit.disabled = cart.length === 0 || completed;
+    $("#summary-total").text("Goods total: " + Store.formatMoney(Store.getCartTotal(cart)));
+    // Three-method chain: .text() updates the content; .toggleClass() hides empty notes
+    // with the existing d-none class; .attr() exposes that state to screen readers.
+    $("#summary-notes")
+      .text("Notes: " + $notes.val().trim())
+      .toggleClass("d-none", $notes.val().trim() === "")
+      .attr("aria-hidden", String($notes.val().trim() === ""));
+    $submit.prop("disabled", cart.length === 0 || completed);
   }
 
-  const validate = Store.bindValidation(form, getRules, errors);
-  // Editing makes the previous confirmation outdated.
-  form.addEventListener("input", function () {
-    completed = false;
-    Store.hideMessage(result);
-    updateSummary();
-  });
-  form.addEventListener("change", function () {
-    completed = false;
-    Store.hideMessage(result);
+  // Update the delivery method before live validation so hidden fields are disabled.
+  $form.on("change", 'input[name="order-method"]', function () {
     updateMethod();
-    updateSummary();
   });
-  document.addEventListener("cartchange", function () {
+  updateMethod();
+  const validate = Store.bindValidation($form, getRules, $errors);
+  $form.on("input change", function () {
     completed = false;
-    Store.hideMessage(result);
+    Store.hideMessage($result);
     updateSummary();
   });
-  form.addEventListener("submit", function (event) {
-    // Handle submission locally without sending or reloading the form.
+  $(document).on("cartchange", function () {
+    completed = false;
+    Store.hideMessage($result);
+    updateSummary();
+  });
+  $form.on("submit", function (event) {
+    // Without preventDefault, GET would expose contact details in the URL and reload the page.
     event.preventDefault();
-    if (completed) {
-      return;
-    }
-    if (Store.getCart().length === 0) {
+    if (completed) return;
+    if (!validate()) return;
+    if (!Store.getCart().length) {
       Store.showMessage(
-        errors,
+        $errors,
         "danger",
         "Your cart is empty. Add at least one material before checking the request.",
       );
-      selections[0].product.focus();
+      selections[0].product.trigger("focus");
       return;
     }
-    if (!validate()) {
-      return;
-    }
+    // The server must recheck all fields, prices and stock because client JS can be bypassed.
+    // This page only validates locally; it does not send a request to the store.
     completed = true;
     updateSummary();
-    result.setAttribute("aria-live", "polite");
-    Store.showMessage(
-      result,
-      "success",
-      "Request summary " +
-        Store.createReference("REQ") +
-        " prepared. " +
-        document.getElementById("summary-total").textContent +
-        ". Review the details above and contact the store to arrange collection or delivery.",
-    );
+    const reference = Store.createReference("REQ");
+    const message =
+      `Request summary ${reference} prepared. ${$("#summary-total").text()}. ` +
+      "Review the details above and contact the store to arrange collection or delivery.";
+    Store.showMessage($result, "success", message);
   });
-  form.addEventListener("reset", function () {
-    // Wait for reset to restore defaults before refreshing the summary.
+  $form.on("reset", function () {
+    // Native reset restores values after the event; wait before refreshing the summary.
     setTimeout(function () {
       completed = false;
       selections.forEach(function (selection) {
@@ -309,14 +294,9 @@
       });
       updateMethod();
       updateSummary();
-      Store.hideMessage(errors);
-      Store.showMessage(
-        result,
-        "info",
-        "Form cleared. Your cart is unchanged; use Clear cart to remove materials.",
-      );
+      Store.hideMessage($errors);
+      Store.showMessage($result, "info", "Form cleared. Your cart is unchanged; use Clear cart to remove materials.");
     }, 0);
   });
-  updateMethod();
   updateSummary();
-})();
+});
