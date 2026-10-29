@@ -165,10 +165,10 @@ $(function () {
       event.preventDefault();
       if (!validate()) return;
       const review = {
-        name: name.control.val().trim(),
+        name: name.control.val(),
         category: category.control.val(),
         rating: Number(rating.control.val()),
-        text: text.control.val().trim(),
+        text: text.control.val(),
         date: new Date().toISOString(),
       };
       $grid.append(renderReview(review));

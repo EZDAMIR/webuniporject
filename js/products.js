@@ -154,7 +154,12 @@ $(function () {
     $button
       .attr("aria-expanded", String(expanded))
       .text(expanded ? "Hide filters" : "Show filters");
-    $controls.toggleClass("d-none", !expanded);
+    // Effect 2: slideToggle collapses the filters while keeping the search query.
+    $controls.stop(true, true);
+    if (expanded) $controls.removeClass("d-none").hide();
+    $controls.slideToggle(Store.effectDuration(180), function () {
+      $(this).toggleClass("d-none", !expanded).removeAttr("style");
+    });
   });
   // The existing tbody catches clicks on new buttons after .empty().append().
   // Direct handlers on the original buttons would not transfer to new elements.

@@ -204,17 +204,36 @@ $(function () {
   }
 
   // Rewrite 3: .find().prop() and .toggleClass() replace querySelectorAll and classList.
-  // The DOM updates are shorter and clearer than the original loops.
-  function updateMethod() {
+  // The DOM code is clearer; slideDown/slideUp make the whole function longer.
+  function updateMethod(animate) {
     const deliverySelected = $delivery.is(":checked");
     const $block = $("#delivery-block");
-    $block.toggleClass("d-none", !deliverySelected).find("input").prop("disabled", !deliverySelected);
+    const wasHidden = $block.hasClass("d-none");
+    $block.find("input").prop("disabled", !deliverySelected);
     $address.prop("required", deliverySelected);
     $("#collection-block").toggleClass("d-none", deliverySelected);
     if (!deliverySelected) {
       $block.find("input").each(function () {
         Store.setFieldError($(this), "");
       });
+    }
+    $block.stop(true, true);
+    if (animate && wasHidden === deliverySelected) {
+      // Effect 3: reveal the relevant fields; .stop() prevents animation queues.
+      if (deliverySelected) {
+        $block
+          .removeClass("d-none")
+          .hide()
+          .slideDown(Store.effectDuration(220), function () {
+            $(this).removeAttr("style");
+          });
+      } else {
+        $block.slideUp(Store.effectDuration(220), function () {
+          $(this).addClass("d-none").removeAttr("style");
+        });
+      }
+    } else {
+      $block.toggleClass("d-none", !deliverySelected).removeAttr("style");
     }
   }
 
@@ -247,9 +266,9 @@ $(function () {
 
   // Update the delivery method before live validation so hidden fields are disabled.
   $form.on("change", 'input[name="order-method"]', function () {
-    updateMethod();
+    updateMethod(true);
   });
-  updateMethod();
+  updateMethod(false);
   const validate = Store.bindValidation($form, getRules, $errors);
   $form.on("input change", function () {
     completed = false;
@@ -283,19 +302,29 @@ $(function () {
     const message =
       `Request summary ${reference} prepared. ${$("#summary-total").text()}. ` +
       "Review the details above and contact the store to arrange collection or delivery.";
-    Store.showMessage($result, "success", message);
+    $form.trigger("reset", [message]);
   });
-  $form.on("reset", function () {
-    // Native reset restores values after the event; wait before refreshing the summary.
+  $form.on("reset", function (event, successMessage) {
+    // Native reset restores values after the event; wait before updating dependent UI.
     setTimeout(function () {
-      completed = false;
+      completed = Boolean(successMessage);
       selections.forEach(function (selection) {
         selection.refresh();
       });
-      updateMethod();
-      updateSummary();
+      updateMethod(false);
       Store.hideMessage($errors);
-      Store.showMessage($result, "info", "Form cleared. Your cart is unchanged; use Clear cart to remove materials.");
+      if (successMessage) {
+        // Keep the validated summary visible after clearing the form fields.
+        $submit.prop("disabled", true);
+        Store.showMessage($result, "success", successMessage);
+      } else {
+        updateSummary();
+        Store.showMessage(
+          $result,
+          "info",
+          "Form cleared. Your cart is unchanged; use Clear cart to remove materials.",
+        );
+      }
     }, 0);
   });
   updateSummary();
