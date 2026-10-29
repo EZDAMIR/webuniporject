@@ -1,6 +1,6 @@
 "use strict";
 
-// jQuery 3.7.1: ready waits until the form fields exist in the DOM.
+// jQuery 3.7.1: wait for the form before binding its handlers.
 $(function () {
   const $form = $("#signup-form");
   const $name = $("#signup-name").attr("autocomplete", "name");
@@ -55,7 +55,7 @@ $(function () {
   }
   const validate = Store.bindValidation($form, getRules, $result);
   $form.on("submit", function (event) {
-    // Without preventDefault, GET would put the password in the URL and reload the page.
+    // Prevent GET from reloading the page and adding the contact details to the URL.
     event.preventDefault();
     if (!validate()) return;
     $form.trigger("reset");

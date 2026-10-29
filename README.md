@@ -4,6 +4,7 @@ Midterm project website for a real building materials store at 199 Kamzina Stree
 Built with Bootstrap 5.3.3 and a thin custom branding stylesheet.
 
 **Bootstrap version:** 5.3.3 (CDN: jsDelivr)
+**jQuery version:** 3.7.1, full build (CDN: code.jquery.com, with integrity checking).
 
 ## Open the site
 
@@ -28,8 +29,8 @@ produce a local estimate, and reviews last until the page is reloaded.
 |---|---|---|---|---|
 | `index.html` | Find the store and share an experience | Follow service/visit anchors, use telephone links, validate and add a review with a category and rating | Relevant section or telephone handler opens; a valid review appears with stars and a Pavlodar timestamp; invalid input gets field errors | Damir Shuitinov |
 | `products.html` | Find materials and prepare a cart | Search by name/specification/category, filter/reset, add/increase/decrease/remove/clear items, continue to order | Matching materials and no-results feedback appear; quantities and totals update; the tab's cart transfers to the order page | Damir Shuitinov |
-| `order.html` | Prepare a collection or delivery estimate | Validate material quantities and contact/date/confirmation fields, toggle delivery fields, update the summary, review or clear the form | A valid request gets a local reference and goods total; missing delivery addresses are rejected; duplicate reviews are blocked until something changes; clearing the form retains the cart | Damir Shuitinov |
-| `signin.html` | Check sign-in details | Validate email and a nonblank password; clear the form | Errors identify invalid fields; valid input gets confirmation and the password is cleared; no login/session is created | Damir Shuitinov |
+| `order.html` | Prepare a collection or delivery estimate | Validate every enabled field, toggle delivery fields, update the summary, review or clear the form | A valid request gets a local reference and goods total, then the form resets while keeping the checked summary and cart; missing delivery addresses are rejected; duplicate reviews are blocked until something changes | Damir Shuitinov |
+| `signin.html` | Check sign-in details | Validate email and a nonblank password; clear the form | Errors identify invalid fields; valid input gets confirmation and resets the form; no login/session is created | Damir Shuitinov |
 | `signup.html` | Check registration details | Validate name/email, optional phone, an eight-character password and exact confirmation; clear the form | Invalid fields receive correction hints; valid input gets confirmation and resets the form; no account is created | Damir Shuitinov |
 
 The original mobile navigation label and checkbox are retained. JavaScript
@@ -45,12 +46,13 @@ validation and messages are provided by `Store.bindValidation` and `Store.showMe
 
 ## Quality and submission
 
-All five pages were checked at 375, 768 and 1280 px, including empty, invalid,
-repeated and successful actions and keyboard navigation. The latest Chromium run
-passed 129 checks with no JavaScript console errors, uncaught exceptions, failed
-requests or horizontal document overflow. HTML formatting and JavaScript syntax
-checks also passed. Native operating-system popup behavior, physical touch devices
-and other browser engines were outside that test run.
+The jQuery migration passed 97 browser checks in Chrome, including all five pages
+at 375 and 1280 px, keyboard navigation, empty/invalid/corrected/successful forms,
+dynamic cart controls, effects, reduced motion and malformed saved cart recovery.
+There were no JavaScript console errors, uncaught exceptions, failed requests or
+horizontal document overflow. HTML/JavaScript formatting and JavaScript syntax checks
+also passed. Native operating-system popup appearance, physical touch devices and
+other browser engines were outside that test run.
 
 ## Screenshots
 
@@ -126,6 +128,7 @@ Delivery costs are excluded. Correcting fields clears outdated validation errors
 - `js/main.js` — shared product data, calculations, cart rendering, messages and validation
 - `js/products.js`, `js/order.js`, `js/signin.js`, `js/signup.js` — page-specific interactions
 - `js/reviews.js` — review form and DOM-generated review cards
+- `js/old-js-version.js` — three original functions for comparison; never loaded by a page
 - `css/damir.css` — styles consolidated into base.css
 - `images/` — store photographs
 - `screenshots/` — responsive screenshots at 375 px, 768 px and desktop width
@@ -142,12 +145,21 @@ Scripts use strict mode, `const` by default and `let` for changing state. The sh
 product array has six objects with IDs, names, categories, specifications, units and prices.
 `filterProducts` filters materials, `getCartLines` transforms cart data and
 `getCartTotal` aggregates subtotals. Reusable functions call one another; the
-request reference uses `Math.random()`. Page scripts use `addEventListener`.
+request reference uses `Math.random()`. Page scripts now use jQuery `.on()`.
 
 Only cart IDs and quantities are kept in tab-scoped `sessionStorage`. Account forms
 validate fields. The review form adds submitted reviews to the page with a name,
 category, rating and timestamp. Catalogue entries include pack sizes, units and
 estimated prices.
+
+## jQuery migration
+
+All pages load jQuery 3.7.1 from the CDN before their scripts and use `$(function () { … })`.
+DOM updates and event handlers use jQuery. The commented replacements are `setFieldError`,
+`updateProducts` and `updateMethod`; their originals are in `js/old-js-version.js`, which is
+not loaded by any page. Effects cover confirmations, filters and delivery fields.
+Shared validation preserves HTML constraints, shows inline errors and resets forms after success.
+HTML changes are limited to the CDN script; CSS is unchanged.
 
 ## Essential midterm corrections
 

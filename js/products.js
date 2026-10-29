@@ -1,6 +1,6 @@
 "use strict";
 
-// jQuery 3.7.1: ready waits for the DOM and shared Store initialization.
+// jQuery 3.7.1: wait for the catalogue table before adding controls.
 $(function () {
   const $table = $("main table");
   const $section = $table.closest("section");
@@ -52,7 +52,7 @@ $(function () {
   $section.find("h2").after($filterToggle, $controls, $count, $result, $empty);
   $table.find("thead tr").append(Store.makeElement("th", "", "Action").attr("scope", "col"));
   $table.find("caption").text("Materials and estimated prices");
-  // Use .html() only for trusted constant markup; insert user data with .text().
+  // Only this fixed notice uses HTML; user input goes through .text().
   $section
     .find("small")
     .first()
@@ -91,11 +91,11 @@ $(function () {
     return $row;
   }
 
-  // Rewrite 2: .val(), .empty().append() and .toggleClass() replace value,
-  // replaceChildren and classList.toggle; updating the list is shorter and clearer.
+  // .val(), .empty().append() and .toggleClass() replace value, replaceChildren and classList.
+  // The list update is shorter and easier to read.
   function updateProducts() {
     const matches = Store.filterProducts(Store.products, $search.val(), $category.val());
-    $list.empty().append(matches.map(renderProduct)); // Build rows from the product array.
+    $list.empty().append(matches.map(renderProduct));
     Store.showMessage(
       $count,
       "info",
@@ -154,15 +154,15 @@ $(function () {
     $button
       .attr("aria-expanded", String(expanded))
       .text(expanded ? "Hide filters" : "Show filters");
-    // Effect 2: slideToggle collapses the filters while keeping the search query.
+    // Collapse the controls without clearing the active filters.
     $controls.stop(true, true);
     if (expanded) $controls.removeClass("d-none").hide();
     $controls.slideToggle(Store.effectDuration(180), function () {
       $(this).toggleClass("d-none", !expanded).removeAttr("style");
     });
   });
-  // The existing tbody catches clicks on new buttons after .empty().append().
-  // Direct handlers on the original buttons would not transfer to new elements.
+  // Filtering replaces the buttons, so delegate to the existing tbody.
+  // A handler bound directly to an old button would not run on its replacement.
   $list.on("click", "button[data-product-id]", function () {
     const $button = $(this);
     const response = Store.addToCart($button.attr("data-product-id"), 1);
