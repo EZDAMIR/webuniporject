@@ -13,10 +13,10 @@ No build step or server is required.
 ## Pages
 
 - `index.html` — home page: store overview, services, visit information
-- `products.html` — product catalogue with prices, Bootstrap table and card
-- `order.html` — order and delivery request form with product selection, delivery address, and on-page summary
-- `signin.html` — sign-in interface (account features prepared for future implementation)
-- `signup.html` — registration interface (account features prepared for future implementation)
+- `products.html` — six materials, search, category filtering and cart
+- `order.html` — material quantities, cart totals, delivery fields and a live summary
+- `signin.html` — sign-in form with field validation
+- `signup.html` — registration form with field validation
 
 ## Functionality Plan
 
@@ -66,38 +66,30 @@ Account validation, order estimates and submitted reviews are intended to run lo
 
 ## Three visitor journeys
 
-### 1. Browse products and place an order
+### 1. Browse products and prepare an estimate
 
-**Start:** Open `index.html`.  
-**Steps:**  
-1. Read the store description and click **Products and prices** in the navigation.  
-2. Review the product table (catalogue items with units and prices).  
-3. Click **Place an order** in the "Choosing materials" card.  
-4. On `order.html`, fill in your name, email, phone and preferred date.  
-5. Select a product from the first product row; the unit is shown in the option label.  
-6. Enter a quantity. Optionally add a second product.  
-7. Choose **Collect from the store** or **Delivery within Pavlodar**.  
-8. If delivery: fill in the street address block.  
-9. Click **Submit request**.  
+**Start:** Open `products.html` from the navigation.
 
-**End:** The order request summary section below the form shows the prepared result area.
-An on-page confirmation message appears (requires JavaScript to populate).
+1. Search materials or choose a category. Use Reset filters to show all six products.
+2. Add materials to the cart. Increase, decrease or remove items as needed.
+3. Click **Continue to order** and enter customer details and a preferred date.
+4. Select collection, confirm the details and click **Review request**.
+
+**End:** A reference and summary appear on the page, with instructions to contact the store.
 
 ---
 
-### 2. Request delivery for heavy materials
+### 2. Prepare a delivery estimate
 
-**Start:** Open `order.html` directly or via navigation.  
-**Steps:**  
-1. Fill in customer details (name, email, phone, preferred date).  
-2. Select **Cement M400 — bag, 50 kg — 2,260 ₸** from the product list and enter quantity.  
-3. Select **Delivery within Pavlodar** radio button.  
-4. Fill in the delivery address block (street, entrance, on-site contact if needed).  
-5. Add any extra instructions in the notes field.  
-6. Click **Submit request**.  
+**Start:** Open `order.html` directly or with a catalogue cart.
 
-**End:** The on-page summary section displays the prepared result layout. The delivery fee
-note explains it is confirmed separately after the request is received.
+1. Choose a material and quantity, then click **Add to cart**.
+2. Enter customer details and today or a future date.
+3. Choose **Delivery within Pavlodar** and enter the required address.
+4. Add any notes, confirm the details and click **Review request**.
+
+**End:** The live summary shows the materials, contact details, delivery address and goods total.
+Delivery costs are excluded. Correcting fields clears outdated validation errors.
 
 ---
 
@@ -108,7 +100,7 @@ note explains it is confirmed separately after the request is received.
 1. Read the "What the shop offers" section.  
 2. Follow the same-page link to **visit information** (the `#visit` anchor).  
 3. Note the opening hours and address: Kamzina Street 199, daily 08:00–18:00.  
-4. Click the **Call us** button fixed in the bottom-right corner (or tap the telephone link).  
+4. Click **Call us** or tap the telephone link.
 
 **End:** The phone app opens with `+7 777 132-04-74` ready to dial.
 
@@ -116,8 +108,11 @@ note explains it is confirmed separately after the request is received.
 
 ## Repository structure
 
-- `css/base.css` — branding stylesheet: custom properties, typography, positioning, colour, CSS-only nav toggle, and prepared JavaScript state targets
-- `css/damir.css` — placeholder (consolidated into base.css)
+- `css/base.css` — midterm branding and prepared JavaScript states
+- `js/main.js` — shared product data, calculations, cart rendering, messages and validation
+- `js/products.js`, `js/order.js`, `js/signin.js`, `js/signup.js` — page-specific interactions
+- `js/reviews.js` — review form and DOM-generated review cards
+- `css/damir.css` — styles consolidated into base.css
 - `images/` — store photographs
 - `screenshots/` — responsive screenshots at 375 px, 768 px and desktop width
 - `report/` — assignment reports
@@ -127,12 +122,18 @@ note explains it is confirmed separately after the request is received.
 - `ai-log.md` — AI assistance log
 - `validation-results.txt` — W3C validation record (rerun after final edits)
 
-## Assignment 4 JavaScript fundamentals
+## Assignments 4 and 5
 
-`js/main.js` defines six product records, reusable calculations, combined text/category
-filtering, and cart selection functions. Cart IDs and whole quantities are kept in
-tab-scoped session storage. The shared API can be exercised independently of the DOM.
-Catalogue rendering, events and form validation follow in Assignment 5.
+Scripts use strict mode, `const` by default and `let` for changing state. The shared
+product array has six objects with IDs, names, categories, specifications, units and prices.
+`filterProducts` filters materials, `getCartLines` transforms cart data and
+`getCartTotal` aggregates subtotals. Reusable functions call one another; the
+request reference uses `Math.random()`. Page scripts use `addEventListener`.
+
+Only cart IDs and quantities are kept in tab-scoped `sessionStorage`. Account forms
+validate fields. The review form adds submitted reviews to the page with a name,
+category, rating and timestamp. Catalogue entries include pack sizes, units and
+estimated prices.
 
 ## Essential midterm corrections
 
