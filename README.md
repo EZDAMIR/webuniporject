@@ -20,9 +20,9 @@ No build step or server is required.
 
 ## Functionality Plan
 
-Responsible student: **Damir Shuitinov**, as recorded in the HTML author metadata.
-The functions below are planned for the JavaScript work in Assignments 4 and 5.
-Account validation, order estimates and submitted reviews are intended to run locally.
+The responsible student is **Damir Shuitinov**, as recorded in the HTML author metadata.
+This is a static coursework site: account forms check input locally, order requests
+produce a local estimate, and reviews last until the page is reloaded.
 
 | Page | Visitor goal | Function | Result | Responsible student |
 |---|---|---|---|---|
@@ -32,11 +32,25 @@ Account validation, order estimates and submitted reviews are intended to run lo
 | `signin.html` | Check sign-in details | Validate email and a nonblank password; clear the form | Errors identify invalid fields; valid input gets confirmation and the password is cleared; no login/session is created | Damir Shuitinov |
 | `signup.html` | Check registration details | Validate name/email, optional phone, an eight-character password and exact confirmation; clear the form | Invalid fields receive correction hints; valid input gets confirmation and resets the form; no account is created | Damir Shuitinov |
 
+The original mobile navigation label and checkbox are retained. JavaScript
+interactions use the existing Bootstrap classes and prepared CSS states.
+Select menus and the date picker use native browser controls. Shared form
+validation and messages are provided by `Store.bindValidation` and `Store.showMessage`.
+
 ## Submission constraints
 
 - Keep the midterm tag unchanged once it has been established.
 - Preserve the HTML interface elements; HTML source edits are limited to deferred JavaScript script links.
 - Preserve all CSS rules; use existing Bootstrap classes and prepared CSS states for JavaScript interactions.
+
+## Quality and submission
+
+All five pages were checked at 375, 768 and 1280 px, including empty, invalid,
+repeated and successful actions and keyboard navigation. The latest Chromium run
+passed 129 checks with no JavaScript console errors, uncaught exceptions, failed
+requests or horizontal document overflow. HTML formatting and JavaScript syntax
+checks also passed. Native operating-system popup behavior, physical touch devices
+and other browser engines were outside that test run.
 
 ## Screenshots
 
@@ -155,3 +169,7 @@ with Bootstrap classes and the prepared `d-none`, `is-invalid` and `selected-row
   summary table. A product must be added before checking the request.
 - Collection is the initial method. Scripts hide and disable delivery fields until
   delivery is selected, require its address only then, and ask customers to confirm their details.
+
+The quality pass retains the original interface elements and CSS rules. Browser
+checks use local sample data; account and order forms do not create accounts or
+transmit requests to the store.
