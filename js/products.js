@@ -5,6 +5,7 @@
   const section = table.closest("section");
   const list = table.tBodies[0];
   list.id = "product-list";
+  // Generate the search and category controls above the existing table.
   const controls = Store.makeElement("div", "row g-3 align-items-end mb-3");
   const searchGroup = Store.makeElement("div", "col-12 col-md-6");
   const searchLabel = Store.makeElement("label", "form-label", "Search materials");
@@ -67,6 +68,7 @@
 
   function renderProduct(product) {
     const row = Store.makeElement("tr", "");
+    // Store the product ID on generated elements for later lookups.
     row.dataset.productId = product.id;
     const name = Store.makeElement("th", "", product.name);
     name.scope = "row";
@@ -88,6 +90,7 @@
 
   function updateProducts() {
     const matches = Store.filterProducts(Store.products, search.value, category.value);
+    // map() creates a row per match; replace the previous results.
     list.replaceChildren(...matches.map(renderProduct));
     Store.showMessage(
       count,
@@ -100,6 +103,7 @@
     updateSelectedRows();
   }
 
+  // some() checks whether each displayed product is in the cart.
   function updateSelectedRows() {
     const cart = Store.getCart();
     list.querySelectorAll("tr").forEach(function (row) {
@@ -112,6 +116,7 @@
     });
   }
 
+  // Set removes duplicate categories before building dropdown options.
   const categories = [
     ...new Set(
       Store.products.map(function (product) {
@@ -125,6 +130,7 @@
     category.append(option);
   });
 
+  // Wait for composed keyboard input to finish before filtering.
   search.addEventListener("input", function (event) {
     if (!event.isComposing) {
       updateProducts();
@@ -144,6 +150,7 @@
     Store.showMessage(result, "info", "Filters reset. All six materials are shown.");
     search.focus();
   });
+  // Clicks bubble to this parent, even after buttons are replaced.
   list.addEventListener("click", function (event) {
     const button = event.target.closest("button[data-product-id]");
     if (!button) {
@@ -155,6 +162,7 @@
   checkout.addEventListener("click", function () {
     window.location.href = "order.html#order-form";
   });
+  // Store sends cartchange after each cart update.
   document.addEventListener("cartchange", updateSelectedRows);
   updateProducts();
 })();

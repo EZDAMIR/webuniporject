@@ -9,6 +9,7 @@
   email.autocomplete = "email";
   password.autocomplete = "current-password";
 
+  // Each rule pairs a field with error text; "" means valid.
   function getRules() {
     return [
       {
@@ -24,12 +25,15 @@
     ];
   }
 
+  // Reuse shared validation with the latest field values.
   const validate = Store.bindValidation(form, getRules, result);
   form.addEventListener("submit", function (event) {
+    // Check locally without submitting or reloading the page.
     event.preventDefault();
     if (!validate()) {
       return;
     }
+    // This checks fields only; clear the password after a valid check.
     password.value = "";
     password.type = "password";
     Store.showMessage(result, "success", "Your details have been checked.");
