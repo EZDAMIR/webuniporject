@@ -1,6 +1,6 @@
 # Kamzina 199 Building Materials Store
 
-diMidterm project website for a real building materials store at 199 Kamzina Street, Pavlodar.
+Midterm project website for a real building materials store at 199 Kamzina Street, Pavlodar.
 Built with Bootstrap 5.3.3 and a thin custom branding stylesheet.
 
 **Bootstrap version:** 5.3.3 (CDN: jsDelivr)
@@ -17,6 +17,26 @@ No build step or server is required.
 - `order.html` — order and delivery request form with product selection, delivery address, and on-page summary
 - `signin.html` — sign-in interface (account features prepared for future implementation)
 - `signup.html` — registration interface (account features prepared for future implementation)
+
+## Functionality Plan
+
+Responsible student: **Damir Shuitinov**, as recorded in the HTML author metadata.
+The functions below are planned for the JavaScript work in Assignments 4 and 5.
+Account validation, order estimates and submitted reviews are intended to run locally.
+
+| Page | Visitor goal | Function | Result | Responsible student |
+|---|---|---|---|---|
+| `index.html` | Find the store and share an experience | Follow service/visit anchors, use telephone links, validate and add a review with a category and rating | Relevant section or telephone handler opens; a valid review appears with stars and a Pavlodar timestamp; invalid input gets field errors | Damir Shuitinov |
+| `products.html` | Find materials and prepare a cart | Search by name/specification/category, filter/reset, add/increase/decrease/remove/clear items, continue to order | Matching materials and no-results feedback appear; quantities and totals update; the tab's cart transfers to the order page | Damir Shuitinov |
+| `order.html` | Prepare a collection or delivery estimate | Validate material quantities and contact/date/confirmation fields, toggle delivery fields, update the summary, review or clear the form | A valid request gets a local reference and goods total; missing delivery addresses are rejected; duplicate reviews are blocked until something changes; clearing the form retains the cart | Damir Shuitinov |
+| `signin.html` | Check sign-in details | Validate email and a nonblank password; clear the form | Errors identify invalid fields; valid input gets confirmation and the password is cleared; no login/session is created | Damir Shuitinov |
+| `signup.html` | Check registration details | Validate name/email, optional phone, an eight-character password and exact confirmation; clear the form | Invalid fields receive correction hints; valid input gets confirmation and resets the form; no account is created | Damir Shuitinov |
+
+## Submission constraints
+
+- Keep the midterm tag unchanged once it has been established.
+- Preserve the HTML interface elements; HTML source edits are limited to deferred JavaScript script links.
+- Preserve all CSS rules; use existing Bootstrap classes and prepared CSS states for JavaScript interactions.
 
 ## Screenshots
 
@@ -106,3 +126,24 @@ note explains it is confirmed separately after the request is received.
 - `css-removal-list.md` — Bootstrap migration map
 - `ai-log.md` — AI assistance log
 - `validation-results.txt` — W3C validation record (rerun after final edits)
+
+## Essential midterm corrections
+
+These decisions are recorded before implementing the corrections. HTML source files
+keep their original interface elements; deferred script links enable interactions. CSS
+supplies shared branding and states. JavaScript reuses the existing catalogue table, two product
+rows, form fields, error areas and order summary, adding only the assignment controls
+with Bootstrap classes and the prepared `d-none`, `is-invalid` and `selected-row` states.
+
+- The review script hides the static quotation aside and provides a review form.
+- Catalogue prices are labelled as estimates, with instructions to confirm current
+  prices and availability with the store.
+- Scripts prevent the original GET submissions and enable accessible custom validation.
+  Order details are presented in a summary with instructions to contact the store.
+- Error elements receive IDs and ARIA associations through JavaScript. Missing feedback
+  elements are generated using Bootstrap's existing validation classes.
+- The original material selectors are populated from the shared six-product array.
+  JavaScript adds quantity previews, Add to cart buttons and controls in the existing
+  summary table. A product must be added before checking the request.
+- Collection is the initial method. Scripts hide and disable delivery fields until
+  delivery is selected, require its address only then, and ask customers to confirm their details.
