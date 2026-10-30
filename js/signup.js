@@ -24,6 +24,7 @@
   password.before(passwordHelp);
   password.setAttribute("aria-describedby", passwordHelp.id);
 
+  // Build rules from current values; "" means the field is valid.
   function getRules() {
     return [
       {
@@ -37,6 +38,7 @@
           : "Enter a valid email address, such as name@example.com.",
       },
       {
+        // A blank phone is allowed; a supplied number must pass validation.
         field: phone,
         error:
           !phone.value.trim() || Store.validPhone(phone.value.trim())
@@ -51,6 +53,7 @@
             : "Use at least 8 characters, excluding leading or trailing spaces.",
       },
       {
+        // Compare full password values, including any spaces.
         field: confirm,
         error:
           confirm.value !== "" && confirm.value === password.value
@@ -62,10 +65,12 @@
 
   const validate = Store.bindValidation(form, getRules, result);
   form.addEventListener("submit", function (event) {
+    // Check locally without submitting or reloading the page.
     event.preventDefault();
     if (!validate()) {
       return;
     }
+    // Restore defaults after validation; this does not create an account.
     form.reset();
     Store.showMessage(result, "success", "Your details have been checked.");
   });

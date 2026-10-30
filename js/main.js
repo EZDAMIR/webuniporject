@@ -1,7 +1,8 @@
 "use strict";
 
-// Shared data and helpers; page scripts load after this file.
+// Shared helpers; this wrapper keeps internal state private.
 const Store = (function () {
+  // Product objects are the shared source for names, units and prices.
   const products = [
     {
       id: "cement-m400",
@@ -52,18 +53,21 @@ const Store = (function () {
       price: 4200,
     },
   ];
+  // sessionStorage carries cart selections between pages in this tab.
   const cartKey = "kamzina-demo-cart";
   const maxQuantity = 999;
   let storageAvailable = true;
   let cart = loadCart();
   let cartView = null;
 
+  // find() returns the first match, or undefined if none exists.
   function findProduct(id) {
     return products.find(function (product) {
       return product.id === id;
     });
   }
 
+  // Combine category filtering with case-insensitive text search.
   function filterProducts(items, query, category) {
     const search = query.trim().toLowerCase();
     return items.filter(function (product) {
@@ -86,6 +90,7 @@ const Store = (function () {
     return price * quantity;
   }
 
+  // map() turns selections into product details and subtotals.
   function getCartLines(items) {
     return items.map(function (item) {
       const product = findProduct(item.id);
@@ -97,21 +102,24 @@ const Store = (function () {
     });
   }
 
+  // reduce() adds the subtotals, starting from zero.
   function getCartTotal(items) {
     return getCartLines(items).reduce(function (total, line) {
       return total + line.subtotal;
     }, 0);
   }
 
+  // Generate a display reference; uniqueness is not guaranteed.
   function createReference(prefix) {
-    // A display reference for the request summary, not a secure or unique order ID.
     return prefix + "-" + Math.floor(100000 + Math.random() * 900000);
   }
 
   function makeElement(tag, classes, text) {
     const element = document.createElement(tag);
+    // Split class names; ... passes them as separate arguments.
     element.classList.add(...classes.split(" ").filter(Boolean));
     if (text !== undefined) {
+      // Insert plain text so supplied content cannot become HTML.
       element.textContent = text;
     }
     return element;
@@ -137,6 +145,7 @@ const Store = (function () {
     element.textContent = "";
   }
 
+  // An empty message clears the error; other text describes the problem.
   function setFieldError(field, message) {
     let feedback = document.getElementById(field.id + "-feedback");
     if (!feedback) {
@@ -151,6 +160,7 @@ const Store = (function () {
     field.setAttribute("aria-invalid", String(message !== ""));
     if (feedback) {
       feedback.textContent = message;
+      // Set avoids duplicate IDs while preserving existing help-text links.
       const ids = new Set(
         (field.getAttribute("aria-describedby") || "").split(" ").filter(Boolean),
       );
@@ -173,6 +183,7 @@ const Store = (function () {
     return firstError === undefined;
   }
 
+  // getRules() reads current values whenever validation runs.
   function bindValidation(form, getRules, result) {
     let submitted = false;
     form.noValidate = true;
@@ -184,6 +195,7 @@ const Store = (function () {
 
     function update() {
       hideMessage(result);
+      // Show live errors only after the first submission attempt.
       if (submitted && !validateFields(getRules(), false)) {
         showMessage(result, "danger", "Please correct the highlighted fields.");
       }
@@ -199,6 +211,7 @@ const Store = (function () {
       showMessage(result, "info", "Form cleared.");
     });
 
+    // Return a check that remembers whether submission was attempted.
     return function () {
       submitted = true;
       const valid = validateFields(getRules(), true);
@@ -218,6 +231,7 @@ const Store = (function () {
     return /^[+\d\s()-]+$/.test(value) && digits.length >= 10 && digits.length <= 15;
   }
 
+  // Use the store timezone and YYYY-MM-DD for date comparisons.
   function todayInPavlodar() {
     return new Intl.DateTimeFormat("en-CA", {
       timeZone: "Asia/Almaty",
@@ -227,12 +241,14 @@ const Store = (function () {
     }).format(new Date());
   }
 
+  // Parse saved JSON; recover with an empty cart if reading or parsing fails.
   function loadCart() {
     try {
       const saved = JSON.parse(sessionStorage.getItem(cartKey) || "[]");
       if (!Array.isArray(saved)) {
         return [];
       }
+      // Discard unknown products, invalid quantities and duplicate IDs.
       const ids = new Set();
       return saved
         .filter(function (item) {
@@ -251,6 +267,7 @@ const Store = (function () {
     }
   }
 
+  // Save as JSON; keep using memory if browser storage fails.
   function saveCart(message) {
     try {
       sessionStorage.setItem(cartKey, JSON.stringify(cart));
@@ -258,6 +275,7 @@ const Store = (function () {
       storageAvailable = false;
     }
     renderCart();
+    // Notify page scripts to refresh their highlights and summaries.
     document.dispatchEvent(new CustomEvent("cartchange"));
     const status = document.getElementById("cart-message");
     if (status) {
@@ -271,6 +289,7 @@ const Store = (function () {
     const existing = cart.find(function (item) {
       return item.id === id;
     });
+    // Check the combined quantity when the product is already in the cart.
     const totalQuantity = quantity + (existing ? existing.quantity : 0);
     if (!product || !validQuantity(quantity) || !validQuantity(totalQuantity)) {
       return {
@@ -316,6 +335,7 @@ const Store = (function () {
     return saveCart("Cart cleared. Choose materials to start again.");
   }
 
+  // Return copies so callers cannot accidentally modify the internal cart.
   function getCart() {
     return cart.map(function (item) {
       return { id: item.id, quantity: item.quantity };
@@ -325,6 +345,7 @@ const Store = (function () {
   function cartButton(label, action, id, disabled) {
     const button = makeElement("button", "btn btn-outline-secondary btn-sm", label);
     button.type = "button";
+    // dataset stores data-* attributes for the click handler.
     button.dataset.cartAction = action;
     button.dataset.productId = id;
     button.setAttribute("aria-label", label + " " + findProduct(id).name);
@@ -332,7 +353,6 @@ const Store = (function () {
     return button;
   }
 
-  // Both pages use this renderer for every cart line.
   function renderCartItem(line) {
     const row = makeElement("tr", "");
     row.dataset.productId = line.product.id;
@@ -362,12 +382,14 @@ const Store = (function () {
     if (!cartView) {
       return;
     }
+    // Rebuild the rows from cart data; ... inserts each row separately.
     cartView.list.replaceChildren(...getCartLines(cart).map(renderCartItem));
     const empty = cart.length === 0;
     cartView.empty.classList.toggle("d-none", !empty);
     cartView.wrapper.classList.toggle("d-none", empty);
     cartView.total.textContent = formatMoney(getCartTotal(cart));
     cartView.clear.disabled = empty;
+    // Changing pages needs storage; ordering here can use memory.
     cartView.checkout.disabled = empty || (cartView.requiresStorage && !storageAvailable);
     cartView.storage.classList.toggle("d-none", storageAvailable);
   }
@@ -436,6 +458,7 @@ const Store = (function () {
       requiresStorage,
     };
 
+    // Handle clicks on the parent so newly rendered buttons also work.
     cartView.list.addEventListener("click", function (event) {
       const button = event.target.closest("[data-cart-action]");
       if (!button || button.disabled) {
@@ -450,6 +473,7 @@ const Store = (function () {
       } else {
         removeFromCart(id);
       }
+      // The clicked button was replaced; restore focus to a usable control.
       const replacement = Array.from(cartView.list.querySelectorAll("button")).find(
         function (item) {
           return (
@@ -467,6 +491,7 @@ const Store = (function () {
     renderCart();
   }
 
+  // Expose these members to page scripts through Store.
   return {
     products,
     findProduct,

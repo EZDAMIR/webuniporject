@@ -1,5 +1,6 @@
 "use strict";
 
+// Reviews are added to this page only and disappear on reload.
 (function () {
   const unverifiedQuote = document.querySelector("#visit aside");
   if (unverifiedQuote) {
@@ -9,6 +10,7 @@
   const maxLength = 500;
   const categories = ["Overall", "Products", "Delivery", "Service"];
 
+  // Display the saved timestamp in the store timezone.
   function formatDate(isoString) {
     return (
       new Intl.DateTimeFormat("en-GB", {
@@ -22,6 +24,7 @@
     );
   }
 
+  // Build one review card from the supplied data.
   function renderReview(review) {
     const column = Store.makeElement("div", "col-12 col-md-6 col-lg-4");
     const card = Store.makeElement("article", "card h-100 shadow-sm");
@@ -48,7 +51,7 @@
       );
       body.append(stars);
     }
-    // textContent keeps submitted text as text, never HTML.
+    // The helper inserts plain text so review markup cannot execute.
     body.append(Store.makeElement("p", "card-text flex-grow-1 mb-2 text-break", review.text));
     if (review.date) {
       const footer = Store.makeElement("footer", "small text-muted mt-auto");
@@ -62,6 +65,7 @@
     return column;
   }
 
+  // Return both the group for insertion and its control for reading values.
   function makeField(id, label, tag) {
     const group = Store.makeElement("div", "mb-3");
     const labelElement = Store.makeElement("label", "form-label", label);
@@ -102,6 +106,7 @@
     name.control.autocomplete = "name";
     name.control.maxLength = 80;
     const category = makeField("review-category", "Category", "select");
+    // defaultSelected makes reset return to the empty prompt.
     addOption(category.control, "", "Choose a category").defaultSelected = true;
     categories.forEach(function (value) {
       addOption(category.control, value, value);
@@ -109,6 +114,7 @@
     const rating = makeField("review-rating", "Rating", "select");
     addOption(rating.control, "", "Choose a rating").defaultSelected = true;
     const ratings = ["Very poor", "Poor", "Average", "Good", "Excellent"];
+    // Create ratings from 5 down to 1; array labels start at index 0.
     for (let stars = 5; stars >= 1; stars -= 1) {
       addOption(
         rating.control,
@@ -171,10 +177,12 @@
       counter.textContent = text.control.value.trim().length + " / " + maxLength;
     });
     form.addEventListener("submit", function (event) {
+      // Add the review locally without submitting or reloading the page.
       event.preventDefault();
       if (!validate()) {
         return;
       }
+      // Convert the rating to a number and record the timestamp in UTC.
       const review = {
         name: name.control.value.trim(),
         category: category.control.value,

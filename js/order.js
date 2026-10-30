@@ -18,6 +18,7 @@
   const submit = document.getElementById("order-submit");
   const summary = document.getElementById("order-summary");
   const selectionMessage = Store.makeMessage("selection-message");
+  // Prevent repeated confirmation until the form or cart changes.
   let completed = false;
 
   form.before(
@@ -45,6 +46,7 @@
   document.querySelector("#order-row-1").parentElement.querySelector("p").textContent =
     "Choose a material and a whole quantity from 1 to 999, then click Add to cart. Either row can add materials; the cart holds your selections.";
   document.getElementById("quantity-unit").textContent = "Unit shown in the selected material.";
+  // Configure both product rows with the same function.
   const selections = [1, 2].map(setupSelection);
 
   summary.querySelector("p").textContent =
@@ -67,12 +69,13 @@
   });
   result.before(details);
 
-  // Add controls to the two prepared product rows.
   function setupSelection(index) {
     const product = document.getElementById("product-" + index);
     const quantity = document.getElementById("qty-" + index);
     const row = document.getElementById("order-row-" + index);
+    // Keep the placeholder and rebuild options from the shared products.
     product.replaceChildren(product.options[0]);
+    // Validate selection rows when adding an item; unused rows may stay blank.
     product.required = false;
     quantity.required = false;
     quantity.max = "999";
@@ -104,6 +107,7 @@
 
     function refresh() {
       const selected = Store.findProduct(product.value);
+      // Input values are text; convert the quantity before calculating.
       const amount = Number(quantity.value);
       row.classList.toggle("selected-row", selected !== undefined);
       if (selected && Store.validQuantity(amount)) {
@@ -165,6 +169,7 @@
     return { product: product, refresh: refresh };
   }
 
+  // Read current values; an empty error string means the check passed.
   function getRules() {
     return [
       {
@@ -204,6 +209,7 @@
     ];
   }
 
+  // Hide and disable delivery fields when collection is selected.
   function updateMethod() {
     document.getElementById("delivery-block").classList.toggle("d-none", !delivery.checked);
     document.getElementById("collection-block").classList.toggle("d-none", delivery.checked);
@@ -216,6 +222,7 @@
     }
   }
 
+  // Refresh displayed details and totals from the current form and cart.
   function updateSummary() {
     const cart = Store.getCart();
     document.getElementById("summary-customer").textContent =
@@ -244,6 +251,7 @@
   }
 
   const validate = Store.bindValidation(form, getRules, errors);
+  // Editing makes the previous confirmation outdated.
   form.addEventListener("input", function () {
     completed = false;
     Store.hideMessage(result);
@@ -261,6 +269,7 @@
     updateSummary();
   });
   form.addEventListener("submit", function (event) {
+    // Handle submission locally without sending or reloading the form.
     event.preventDefault();
     if (completed) {
       return;
@@ -291,7 +300,7 @@
     );
   });
   form.addEventListener("reset", function () {
-    // Wait until the browser restores the original field values.
+    // Wait for reset to restore defaults before refreshing the summary.
     setTimeout(function () {
       completed = false;
       selections.forEach(function (selection) {
