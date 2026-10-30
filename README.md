@@ -127,6 +127,13 @@ note explains it is confirmed separately after the request is received.
 - `ai-log.md` — AI assistance log
 - `validation-results.txt` — W3C validation record (rerun after final edits)
 
+## Assignment 4 JavaScript fundamentals
+
+`js/main.js` defines six product records, reusable calculations, combined text/category
+filtering, and cart selection functions. Cart IDs and whole quantities are kept in
+tab-scoped session storage. The shared API can be exercised independently of the DOM.
+Catalogue rendering, events and form validation follow in Assignment 5.
+
 ## Essential midterm corrections
 
 These decisions are recorded before implementing the corrections. HTML source files
