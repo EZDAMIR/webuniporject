@@ -1,11 +1,56 @@
 "use strict";
 
-// jQuery 3.7.1: add the review form once the DOM is ready.
-$(function () {
-  $("#visit aside").addClass("d-none");
-  const minLength = 20;
-  const maxLength = 500;
+// Independent plain JavaScript feature: data, DOM rendering, validation and events.
+(function () {
+  // Reviews contain actual submissions. Starting empty avoids invented testimonials.
+  const reviews = [];
   const categories = ["Overall", "Products", "Delivery", "Service"];
+  const ratings = [
+    { value: 5, label: "Excellent" },
+    { value: 4, label: "Good" },
+    { value: 3, label: "Average" },
+    { value: 2, label: "Poor" },
+    { value: 1, label: "Very poor" },
+  ];
+  const sorts = [
+    { value: "newest", label: "Newest first" },
+    { value: "highest", label: "Highest rating" },
+    { value: "lowest", label: "Lowest rating" },
+  ];
+  const limits = { name: 80, minimumText: 20, maximumText: 500 };
+
+  function element(tag, classes, text) {
+    const node = document.createElement(tag);
+    node.className = classes;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+
+  function option(value, label) {
+    const node = element("option", "", label);
+    node.value = value;
+    return node;
+  }
+
+  // Pure functions take data as parameters and return new results for the renderer.
+  function selectReviews(items, category, sort) {
+    const selected = items.filter(function (review) {
+      return category === "all" || review.category === category;
+    });
+    return selected.sort(function (first, second) {
+      if (sort === "highest") return second.rating - first.rating || second.id - first.id;
+      if (sort === "lowest") return first.rating - second.rating || second.id - first.id;
+      return second.id - first.id;
+    });
+  }
+
+  function averageRating(items) {
+    if (items.length === 0) return null;
+    const total = items.reduce(function (sum, review) {
+      return sum + review.rating;
+    }, 0);
+    return (total / items.length).toFixed(1);
+  }
 
   function formatDate(isoString) {
     return (
@@ -21,173 +66,265 @@ $(function () {
   }
 
   function renderReview(review) {
-    const $column = Store.makeElement("div", "col-12 col-md-6 col-lg-4");
-    const $card = Store.makeElement("article", "card h-100 shadow-sm");
-    const $body = Store.makeElement("div", "card-body d-flex flex-column");
-    const $header = Store.makeElement(
+    const column = element("div", "col-12 col-md-6 col-lg-4");
+    const card = element("article", "card h-100 shadow-sm");
+    const body = element("div", "card-body d-flex flex-column");
+    const header = element(
       "div",
       "d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2",
     );
-    $header.append(
-      Store.makeElement("h3", "card-title fs-6 fw-bold mb-0 text-break", review.name),
-      Store.makeElement("span", "badge bg-secondary", review.category),
+    header.append(
+      element("h3", "card-title fs-6 fw-bold mb-0 text-break", review.name),
+      element("span", "badge bg-secondary", review.category),
     );
-    $body.append($header);
-    const $stars = Store.makeElement("p", "mb-1");
-    const $visible = Store.makeElement(
+    const stars = element("p", "mb-1");
+    const visibleStars = element(
       "span",
       "",
       "★".repeat(review.rating) + "☆".repeat(5 - review.rating),
     );
-    $stars.append(
-      $visible.attr("aria-hidden", "true"),
-      Store.makeElement("span", "visually-hidden", review.rating + " out of 5 stars"),
+    visibleStars.setAttribute("aria-hidden", "true");
+    stars.append(
+      visibleStars,
+      element("span", "visually-hidden", review.rating + " out of 5 stars"),
     );
-    $body.append($stars);
-    $body.append(Store.makeElement("p", "card-text flex-grow-1 mb-2 text-break", review.text));
-    const $footer = Store.makeElement("footer", "small text-muted mt-auto");
-    $footer.append(
-      Store.makeElement("time", "", formatDate(review.date)).attr("datetime", review.date),
+    const time = element("time", "", formatDate(review.date));
+    time.dateTime = review.date;
+    const footer = element("footer", "small text-muted mt-auto");
+    footer.append(time);
+    body.append(
+      header,
+      stars,
+      element("p", "card-text flex-grow-1 mb-2 text-break", review.text),
+      footer,
     );
-    $body.append($footer);
-    $card.append($body);
-    return $column.append($card);
+    card.append(body);
+    column.append(card);
+    return column;
   }
 
-  function makeField(id, label, tag) {
-    const $control = Store.makeElement(tag, tag === "select" ? "form-select" : "form-control")
-      .attr({ id, name: id, "aria-describedby": id + "-feedback" })
-      .prop("required", true);
-    const $group = Store.makeElement("div", "mb-3").append(
-      Store.makeElement("label", "form-label", label).attr("for", id),
-      $control,
-      Store.makeElement("div", "invalid-feedback").attr("id", id + "-feedback"),
-    );
-    return { group: $group, control: $control };
+  function field(id, label, tag) {
+    const control = element(tag, tag === "select" ? "form-select" : "form-control");
+    control.id = id;
+    control.name = id;
+    control.required = true;
+    const caption = element("label", "form-label", label);
+    caption.htmlFor = id;
+    const feedback = element("div", "invalid-feedback");
+    feedback.id = id + "-feedback";
+    control.setAttribute("aria-describedby", feedback.id);
+    const group = element("div", "mb-3");
+    group.append(caption, control, feedback);
+    return { group, control, feedback };
   }
 
-  function addOption($select, value, label) {
-    return Store.makeElement("option", "", label).val(value).appendTo($select);
+  function setError(input, message) {
+    input.control.classList.toggle("is-invalid", Boolean(message));
+    input.control.setAttribute("aria-invalid", String(Boolean(message)));
+    input.feedback.textContent = message;
   }
 
-  function buildForm() {
-    const $wrapper = Store.makeElement("div", "border rounded p-3 mt-3");
-    const $message = Store.makeMessage("review-msg").addClass("mt-2");
-    const $form = Store.makeElement("form", "").attr({
-      id: "review-form",
-      "aria-labelledby": "review-form-heading",
-    });
-    const name = makeField("review-name", "Your name", "input");
-    name.control.attr({ type: "text", autocomplete: "name", maxlength: 80 });
-    const category = makeField("review-category", "Category", "select");
-    addOption(category.control, "", "Choose a category").prop("defaultSelected", true);
-    categories.forEach(function (value) {
-      addOption(category.control, value, value);
-    });
-    const rating = makeField("review-rating", "Rating", "select");
-    addOption(rating.control, "", "Choose a rating").prop("defaultSelected", true);
-    const ratings = ["Very poor", "Poor", "Average", "Good", "Excellent"];
-    for (let stars = 5; stars >= 1; stars -= 1) {
-      addOption(
-        rating.control,
-        String(stars),
-        "★".repeat(stars) + "☆".repeat(5 - stars) + " — " + ratings[stars - 1],
-      );
+  function initReviews() {
+    const main = document.querySelector("main");
+    if (!main) return;
+    document.querySelector("#visit aside")?.classList.add("d-none");
+    const section = element("section", "mb-4");
+    section.id = "reviews";
+    section.setAttribute("aria-labelledby", "reviews-heading");
+    const heading = element("h2", "", "Reviews");
+    heading.id = "reviews-heading";
+    const summary = element("p", "small");
+    summary.id = "review-summary";
+    summary.setAttribute("role", "status");
+    const empty = element("p", "alert alert-info");
+    empty.id = "reviews-empty";
+    const grid = element("div", "row g-3 mb-4");
+    grid.id = "review-list";
+    const filter = field("review-filter", "Show reviews", "select");
+    filter.control.required = false;
+    filter.control.append(option("all", "All categories"));
+    for (const category of categories) filter.control.append(option(category, category));
+    const sort = field("review-sort", "Sort reviews", "select");
+    sort.control.required = false;
+    for (const item of sorts) sort.control.append(option(item.value, item.label));
+    const controls = element("div", "row");
+    for (const input of [filter, sort]) {
+      input.group.classList.add("col-12", "col-sm-6");
+      input.control.setAttribute("aria-controls", grid.id);
+      controls.append(input.group);
     }
-    const text = makeField("review-text", "Review (20–500 characters)", "textarea");
-    text.control.attr({
-      rows: 4,
-      minlength: minLength,
-      maxlength: maxLength,
-      placeholder: "Tell us about your experience.",
-      "aria-describedby": "review-text-counter review-text-feedback",
-    });
-    const $counter = Store.makeElement("small", "form-text", "0 / " + maxLength).attr({
-      id: "review-text-counter",
-      "aria-live": "polite",
-      "aria-atomic": "true",
-    });
-    text.group.append($counter);
-    $form.append(
-      name.group,
-      category.group,
-      rating.group,
-      text.group,
-      Store.makeElement("button", "btn btn-danger", "Add review").attr({
-        id: "review-submit",
-        type: "submit",
-      }),
-    );
-    $wrapper.append(
-      Store.makeElement("h3", "", "Write a review").attr("id", "review-form-heading"),
-      Store.makeElement(
+
+    function updateReviews() {
+      const selected = selectReviews(reviews, filter.control.value, sort.control.value);
+      const cards = document.createDocumentFragment();
+      for (const review of selected) cards.append(renderReview(review));
+      grid.replaceChildren(cards);
+      empty.classList.toggle("d-none", selected.length !== 0);
+      empty.textContent =
+        reviews.length === 0
+          ? "No reviews yet. Be the first to share your experience."
+          : "No reviews in this category. Choose All categories to see every review.";
+      const average = averageRating(selected);
+      summary.textContent =
+        selected.length +
+        " of " +
+        reviews.length +
+        " reviews shown." +
+        (average === null ? "" : " Average rating: " + average + " out of 5.");
+    }
+
+    const wrapper = element("div", "border rounded p-3 mt-3");
+    const formHeading = element("h3", "", "Write a review");
+    formHeading.id = "review-form-heading";
+    const message = element("p", "alert d-none mt-2");
+    message.id = "review-msg";
+    message.setAttribute("role", "status");
+    message.setAttribute("aria-atomic", "true");
+    const form = element("form", "");
+    form.id = "review-form";
+    form.noValidate = true;
+    form.setAttribute("aria-labelledby", formHeading.id);
+    const name = field("review-name", "Your name", "input");
+    name.control.type = "text";
+    name.control.autocomplete = "name";
+    name.control.maxLength = limits.name;
+    const category = field("review-category", "Category", "select");
+    category.control.append(option("", "Choose a category"));
+    for (const value of categories) category.control.append(option(value, value));
+    const rating = field("review-rating", "Rating", "select");
+    rating.control.append(option("", "Choose a rating"));
+    for (const item of ratings)
+      rating.control.append(option(String(item.value), item.value + " — " + item.label));
+    const text = field("review-text", "Review (20–500 characters)", "textarea");
+    text.control.rows = 4;
+    text.control.minLength = limits.minimumText;
+    text.control.maxLength = limits.maximumText;
+    text.control.placeholder = "Tell us about your experience.";
+    const counter = element("small", "form-text");
+    counter.id = "review-text-counter";
+    text.control.setAttribute("aria-describedby", counter.id + " " + text.feedback.id);
+    text.group.append(counter);
+    const submit = element("button", "btn btn-danger", "Add review");
+    submit.id = "review-submit";
+    submit.type = "submit";
+    const reset = element("button", "btn btn-outline-secondary", "Clear review");
+    reset.type = "reset";
+    const actions = element("div", "d-flex flex-wrap gap-2");
+    actions.append(submit, reset);
+    form.append(name.group, category.group, rating.group, text.group, actions);
+    wrapper.append(
+      formHeading,
+      element(
         "p",
         "small",
-        "Choose a category and rating, then tell us about your experience.",
+        "Reviews stay on this page until you reload. This demo does not publish them.",
       ),
-      $message,
-      $form,
+      message,
+      form,
     );
+    section.append(heading, controls, summary, empty, grid, wrapper);
+    main.append(section);
+    let submitted = false;
 
-    function getRules() {
-      const length = text.control.val().trim().length;
-      return [
-        { field: name.control, error: name.control.val().trim() ? "" : "Enter your name." },
+    function showMessage(type, value) {
+      message.className = "alert alert-" + type + " mt-2";
+      message.textContent = value;
+    }
+    function updateCounter() {
+      counter.textContent = text.control.value.trim().length + " / " + limits.maximumText;
+    }
+    function validate(focusFirst) {
+      const length = text.control.value.trim().length;
+      const rules = [
         {
-          field: category.control,
-          error: categories.includes(category.control.val()) ? "" : "Choose a category.",
-        },
-        {
-          field: rating.control,
-          error: /^[1-5]$/.test(rating.control.val()) ? "" : "Choose a rating from 1 to 5.",
-        },
-        {
-          field: text.control,
+          input: name,
           error:
-            length >= minLength && length <= maxLength
+            name.control.value.trim().length > 0 && name.control.value.trim().length <= limits.name
+              ? ""
+              : "Enter your name (1–80 characters).",
+        },
+        {
+          input: category,
+          error: categories.includes(category.control.value) ? "" : "Choose a category.",
+        },
+        {
+          input: rating,
+          error: ratings.some(function (item) {
+            return String(item.value) === rating.control.value;
+          })
+            ? ""
+            : "Choose a rating from 1 to 5.",
+        },
+        {
+          input: text,
+          error:
+            length >= limits.minimumText && length <= limits.maximumText
               ? ""
               : "Enter 20–500 characters, excluding leading or trailing spaces (currently " +
                 length +
                 ").",
         },
       ];
+      for (const rule of rules) setError(rule.input, rule.error);
+      const first = rules.find(function (rule) {
+        return rule.error !== "";
+      });
+      if (first && focusFirst) first.input.control.focus();
+      return first === undefined;
     }
-    const validate = Store.bindValidation($form, getRules, $message);
-    text.control.on("input", function () {
-      $counter.text($(this).val().trim().length + " / " + maxLength);
+
+    filter.control.addEventListener("change", updateReviews);
+    sort.control.addEventListener("change", updateReviews);
+    // Events bubble from generated controls to the form; no inline attributes.
+    function handleCorrection(event) {
+      if (event.isComposing) return;
+      updateCounter();
+      message.classList.add("d-none");
+      if (submitted && !validate(false))
+        showMessage("danger", "Please correct the highlighted fields.");
+    }
+    form.addEventListener("input", handleCorrection);
+    form.addEventListener("change", handleCorrection);
+    form.addEventListener("compositionend", handleCorrection);
+    form.addEventListener("reset", function () {
+      submitted = false;
+      for (const input of [name, category, rating, text]) setError(input, "");
+      counter.textContent = "0 / " + limits.maximumText;
+      showMessage("info", "Review form cleared.");
     });
-    $form.on("reset", function () {
-      $counter.text("0 / " + maxLength);
-    });
-    $form.on("submit", function (event) {
-      // A normal submit would reload the page and discard the reviews kept in memory.
+    form.addEventListener("submit", function (event) {
       event.preventDefault();
-      if (!validate()) return;
-      const review = {
-        name: name.control.val(),
-        category: category.control.val(),
-        rating: Number(rating.control.val()),
-        text: text.control.val(),
+      submitted = true;
+      name.control.value = name.control.value.trim();
+      text.control.value = text.control.value.trim();
+      updateCounter();
+      if (!validate(true)) {
+        showMessage("danger", "Please correct the highlighted fields.");
+        return;
+      }
+      reviews.push({
+        id: reviews.length + 1,
+        name: name.control.value,
+        category: category.control.value,
+        rating: Number(rating.control.value),
+        text: text.control.value,
         date: new Date().toISOString(),
-      };
-      $grid.append(renderReview(review));
-      $form.trigger("reset");
-      Store.showMessage($message, "success", "Your review has been added.");
-      name.control.trigger("focus");
+      });
+      // Show the new review even when the visitor had selected another category.
+      filter.control.value = "all";
+      sort.control.value = "newest";
+      updateReviews();
+      form.reset();
+      showMessage("success", "Your review has been added to this page.");
+      name.control.focus();
     });
-    return $wrapper;
+    updateCounter();
+    updateReviews();
   }
 
-  const $section = Store.makeElement("section", "mb-4").attr({
-    id: "reviews",
-    "aria-labelledby": "reviews-heading",
-  });
-  const $grid = Store.makeElement("div", "row g-3 mb-4").attr("id", "review-list");
-  $section.append(
-    Store.makeElement("h2", "", "Reviews").attr("id", "reviews-heading"),
-    Store.makeElement("p", "", "Share your experience with our products, delivery or service."),
-    $grid,
-    buildForm(),
-  );
-  $("main").append($section);
-});
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initReviews, { once: true });
+  } else {
+    initReviews();
+  }
+})();
