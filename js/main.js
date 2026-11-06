@@ -1,5 +1,45 @@
 "use strict";
 
+// Add keyboard behavior to the existing label and checkbox without replacing either element.
+(function setupNavigation() {
+  const toggle = document.querySelector(".navbar-toggler");
+  const checkbox = document.getElementById("nav-toggle");
+  const menu = document.getElementById("main-nav");
+  const navigation = document.querySelector("nav");
+  if (!toggle || !checkbox || !menu || !navigation) {
+    return;
+  }
+
+  toggle.tabIndex = 0;
+  toggle.setAttribute("role", "button");
+  toggle.setAttribute("aria-controls", menu.id);
+
+  function setExpanded(expanded) {
+    checkbox.checked = expanded;
+    toggle.setAttribute("aria-expanded", String(expanded));
+  }
+  setExpanded(false);
+
+  checkbox.addEventListener("change", function () {
+    setExpanded(checkbox.checked);
+  });
+  toggle.addEventListener("keydown", function (event) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      checkbox.click();
+    }
+  });
+  navigation.addEventListener("keydown", function (event) {
+    if (event.key === "Escape" && toggle.getAttribute("aria-expanded") === "true") {
+      setExpanded(false);
+      toggle.focus();
+    }
+  });
+  window.matchMedia("(min-width: 768px)").addEventListener("change", function () {
+    setExpanded(false);
+  });
+})();
+
 // Shared helpers; this wrapper keeps internal state private.
 const Store = (function () {
   // Product objects are the shared source for names, units and prices.
@@ -271,6 +311,8 @@ const Store = (function () {
   function saveCart(message) {
     try {
       sessionStorage.setItem(cartKey, JSON.stringify(cart));
+      // A successful write also recovers from malformed or temporarily unavailable storage.
+      storageAvailable = true;
     } catch (error) {
       storageAvailable = false;
     }
