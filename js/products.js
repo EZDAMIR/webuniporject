@@ -66,7 +66,7 @@ $(function () {
     Store.makeElement(
       "p",
       "small text-muted",
-      "Quantities are whole units from 1 to 999. At one unit, use Remove to delete an item. Only product IDs and quantities are kept for this browser tab.",
+      "Quantities are whole units from 1 to 999. At one unit, use Remove to delete an item. The cart keeps only product IDs and quantities for this browser tab.",
     ),
   );
   $section.after($cartSection);
