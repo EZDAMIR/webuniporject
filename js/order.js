@@ -76,10 +76,12 @@ $(function () {
   $result.before($details);
 
   function setupSelection(index) {
-    const $product = $("#product-" + index);
-    const $quantity = $("#qty-" + index).attr({ max: 999, step: 1 });
+    const $product = $("#product-" + index).prop("required", false);
+    const $quantity = $("#qty-" + index)
+      .attr({ max: 999, step: 1 })
+      .prop("required", false);
     const $row = $("#order-row-" + index);
-    // Keep the HTML constraints; an unused second row is allowed.
+    // These controls add items. The cart owns the request, so unused rows are optional.
     const $placeholder = $product.find("option").first().detach();
     $product.empty().append($placeholder);
     Store.products.forEach(function (item) {
