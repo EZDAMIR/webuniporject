@@ -554,6 +554,246 @@ $(function () {
     renderCart();
   }
 
+  // Browser-only coursework demo. This state never authorizes access to real data.
+  const demoAccountKey = "kamzina-demo-accounts-v1";
+  const demoIterations = 600000;
+  const $demoStatus = makeElement("div", "alert alert-info d-none")
+    .attr({ id: "demo-session", role: "status", "aria-live": "polite" })
+    .prependTo("main");
+
+  function readDemoState() {
+    const raw = sessionStorage.getItem(demoAccountKey);
+    if (!raw) return { accounts: [], sessionEmail: null };
+    let saved;
+    try {
+      saved = JSON.parse(raw);
+    } catch {
+      return { accounts: [], sessionEmail: null };
+    }
+    if (!saved || !Array.isArray(saved.accounts)) return { accounts: [], sessionEmail: null };
+    const accounts = saved.accounts
+      .filter(function (account) {
+        return (
+          account &&
+          typeof account.name === "string" &&
+          account.name.length >= 2 &&
+          account.name.length <= 80 &&
+          typeof account.email === "string" &&
+          validEmail(account.email) &&
+          /^[a-f0-9]{32}$/.test(account.salt) &&
+          /^[a-f0-9]{64}$/.test(account.verifier)
+        );
+      })
+      .map(function (account) {
+        return {
+          name: account.name,
+          email: account.email,
+          salt: account.salt,
+          verifier: account.verifier,
+        };
+      });
+    return {
+      accounts,
+      sessionEmail: accounts.some(function (account) {
+        return account.email === saved.sessionEmail;
+      })
+        ? saved.sessionEmail
+        : null,
+    };
+  }
+
+  function saveDemoState(state) {
+    try {
+      sessionStorage.setItem(demoAccountKey, JSON.stringify(state));
+    } catch {
+      throw new Error("Browser storage is unavailable. Enable storage to use accounts.");
+    }
+    refreshDemoSession();
+  }
+
+  function refreshDemoSession() {
+    let state;
+    try {
+      state = readDemoState();
+    } catch {
+      $demoStatus.addClass("d-none");
+      return;
+    }
+    const account = state.accounts.find(function (item) {
+      return item.email === state.sessionEmail;
+    });
+    $demoStatus.empty().toggleClass("d-none", !account);
+    if (!account) return;
+    const $signout = makeElement(
+      "button",
+      "btn btn-outline-secondary btn-sm ms-2",
+      "Sign out",
+    )
+      .attr("type", "button")
+      .on("click", function () {
+        try {
+          const current = readDemoState();
+          current.sessionEmail = null;
+          saveDemoState(current);
+          $demoStatus
+            .removeClass("d-none")
+            .text("You have signed out. Your account remains available in this tab.");
+          $("main h1").attr("tabindex", -1).trigger("focus");
+        } catch (error) {
+          showMessage($demoStatus, "danger", error.message);
+        }
+      });
+    $demoStatus.append(
+      makeElement(
+        "span",
+        "text-break",
+        "Signed in as " + account.name + " (" + account.email + "). This tab only.",
+      ),
+      $signout,
+    );
+  }
+
+  function hex(bytes) {
+    return Array.from(bytes, function (byte) {
+      return byte.toString(16).padStart(2, "0");
+    }).join("");
+  }
+
+  async function demoVerifier(password, salt) {
+    if (!window.crypto?.subtle)
+      throw new Error("Accounts need HTTPS or localhost in a supported browser.");
+    const key = await crypto.subtle.importKey(
+      "raw",
+      new TextEncoder().encode(password),
+      "PBKDF2",
+      false,
+      ["deriveBits"],
+    );
+    const bytes = new Uint8Array(
+      salt.match(/../g).map(function (pair) {
+        return parseInt(pair, 16);
+      }),
+    );
+    const bits = await crypto.subtle.deriveBits(
+      { name: "PBKDF2", hash: "SHA-256", salt: bytes, iterations: demoIterations },
+      key,
+      256,
+    );
+    return hex(new Uint8Array(bits));
+  }
+
+  async function registerDemoAccount(name, email, password) {
+    email = email.trim().toLowerCase();
+    let state;
+    try {
+      state = readDemoState();
+    } catch {
+      throw new Error("Browser storage is unavailable. Enable storage to use accounts.");
+    }
+    if (
+      state.accounts.some(function (account) {
+        return account.email === email;
+      })
+    ) {
+      return {
+        success: false,
+        field: "email",
+        message: "An account for this email already exists in this tab. Sign in instead.",
+      };
+    }
+    if (!window.crypto?.subtle)
+      throw new Error("Accounts need HTTPS or localhost in a supported browser.");
+    const salt = hex(crypto.getRandomValues(new Uint8Array(16)));
+    const verifier = await demoVerifier(password, salt);
+    state.accounts.push({ name: name.trim(), email, salt, verifier });
+    state.sessionEmail = email;
+    saveDemoState(state);
+    return {
+      success: true,
+      message: "Account created. You are signed in for this browser tab.",
+    };
+  }
+
+  async function signInDemoAccount(email, password) {
+    let state;
+    try {
+      state = readDemoState();
+    } catch {
+      throw new Error("Browser storage is unavailable. Enable storage to use accounts.");
+    }
+    const account = state.accounts.find(function (item) {
+      return item.email === email.trim().toLowerCase();
+    });
+    if (!account || (await demoVerifier(password, account.salt)) !== account.verifier) {
+      return {
+        success: false,
+        message:
+          "The email or password does not match. Create an account in this tab first if needed.",
+      };
+    }
+    state.sessionEmail = account.email;
+    saveDemoState(state);
+    return {
+      success: true,
+      message: "Signed in for this browser tab.",
+    };
+  }
+
+  refreshDemoSession();
+  $(window).on("pageshow", function (event) {
+    // History-cache restoration keeps the old DOM without rerunning this script.
+    if (event.originalEvent?.persisted) {
+      refreshDemoSession();
+    }
+  });
+
+  // Shared presentation for browser-only demo accounts.
+  function setupAccountDemo(kind) {
+    const signup = kind === "signup";
+    const $form = $("#" + kind + "-form");
+    const title = signup ? "Create an account" : "Sign in";
+    const description = signup
+      ? "Create an account for this browser tab. Your account stays available until you close the tab. Ordering does not require an account."
+      : "Use an account created in this browser tab. Ordering does not require an account.";
+    document.title = title + " | Kamzina 199";
+    $('meta[name="description"]').attr("content", description);
+    $("main h1").text(title).next("p").text(description);
+    $form
+      .closest("section")
+      .find("h2")
+      .text(signup ? "Registration" : "Credentials");
+    $form.find("legend").text(signup ? "New account details" : "Account credentials");
+    $("#" + kind + "-submit").text(signup ? "Create account" : "Sign in");
+    const $related = $form
+      .next("small")
+      .text(signup ? "Already have an account? " : "No account yet? ");
+    $related.append(
+      makeElement("a", "", signup ? "Sign in" : "Create an account").attr(
+        "href",
+        signup ? "signin.html" : "signup.html",
+      ),
+    );
+    $form.find('input[type="password"]').each(function () {
+      const $field = $(this);
+      const $button = makeElement(
+        "button",
+        "btn btn-outline-secondary btn-sm mt-2",
+        "Show password",
+      ).attr({ type: "button", "aria-controls": $field.attr("id"), "aria-pressed": "false" });
+      $field.after($button);
+      function maskPassword() {
+        $field.attr("type", "password");
+        $button.attr("aria-pressed", "false").text("Show password");
+      }
+      $button.on("click", function () {
+        const show = $field.attr("type") === "password";
+        $field.attr("type", show ? "text" : "password");
+        $button.attr("aria-pressed", String(show)).text(show ? "Hide password" : "Show password");
+      });
+      $form.on("reset", maskPassword);
+    });
+  }
+
   Store = {
     products,
     findProduct,
@@ -580,5 +820,8 @@ $(function () {
     getCart,
     clearCart,
     effectDuration,
+    setupAccountDemo,
+    registerDemoAccount,
+    signInDemoAccount,
   };
 });
