@@ -8,8 +8,9 @@ $(function () {
   const $checkbox = $("#nav-toggle");
   const $menu = $("#main-nav");
   const $navigation = $("nav");
+  $(".navbar-brand").addClass("text-wrap mw-100");
   $toggle.attr({ tabindex: 0, role: "button", "aria-controls": $menu.attr("id") });
-
+  
   function setExpanded(expanded) {
     $checkbox.prop("checked", expanded);
     $toggle.attr("aria-expanded", String(expanded));
@@ -34,6 +35,37 @@ $(function () {
   $(window.matchMedia("(min-width: 768px)")).on("change", function () {
     setExpanded(false);
   });
+
+  // Keep the fixed telephone link from covering controls anywhere on the page.
+  const $callLink = $(".fixed-call");
+  let callFrame = 0;
+  function keepActionsVisible() {
+    if (callFrame || !$callLink.length) return;
+    callFrame = requestAnimationFrame(function () {
+      callFrame = 0;
+      const call = $callLink[0].getBoundingClientRect();
+      const covered = $("input, select, textarea, button, a[href], [role='button']")
+        .not($callLink)
+        .toArray()
+        .some(function (node) {
+          if (window.getComputedStyle(node).visibility !== "visible") return false;
+          const rect = node.getBoundingClientRect();
+          return (
+            rect.width > 0 &&
+            rect.height > 0 &&
+            rect.left < call.right &&
+            rect.right > call.left &&
+            rect.top < call.bottom &&
+            rect.bottom > call.top
+          );
+        });
+      $callLink.toggleClass("invisible", covered);
+    });
+  }
+  $(window).on("scroll resize", keepActionsVisible);
+  $(document).on("focusin input change", keepActionsVisible);
+  new ResizeObserver(keepActionsVisible).observe(document.body);
+  keepActionsVisible();
 
   // Recheck this each time so a changed motion preference takes effect without reloading.
   function effectDuration(milliseconds) {
@@ -744,6 +776,7 @@ $(function () {
     // History-cache restoration keeps the old DOM without rerunning this script.
     if (event.originalEvent?.persisted) {
       refreshDemoSession();
+      keepActionsVisible();
     }
   });
 
