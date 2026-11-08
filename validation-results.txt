@@ -1,5 +1,15 @@
-Local Nu Html Checker (v.Nu) validation
-Date: 4 October 2026
+Local Nu Html Checker (W3C HTML validation)
+Checked at: 2026-11-12T20:42:25.237763+00:00
+Validator version: 26.11.9 (524d973)
 Files: index.html, products.html, order.html, signin.html, signup.html
 Command: npx vnu-jar --errors-only --format text index.html products.html order.html signin.html signup.html
-Result: Document checking completed. No errors found.
+Exit code: 0
+Output:
+Document checking completed. No errors found.
+
+Validated source SHA-256:
+index.html: 91203d5fe274b1438f95fa5fc330165ca43bb53809db69e2e7c56b6b47af3fd8
+products.html: a31b8bc95c6be42fbc288217527da0360b7d80e2a294e95ace75ebd1df9180bb
+order.html: a2c81550c3b9d94f28caa1256be44dd84b6915b2bd31d36d3578d10803f159d4
+signin.html: 353b245a1b871d72d9f034aa7009f74c74b5e0304e6d479646a52b56e59796f6
+signup.html: ef6918266e8d391062cc23e3da2bc32bf8a236e87a25f1fc63a6beeb31337e72
