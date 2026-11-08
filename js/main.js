@@ -10,7 +10,7 @@ $(function () {
   const $navigation = $("nav");
   $(".navbar-brand").addClass("text-wrap mw-100");
   $toggle.attr({ tabindex: 0, role: "button", "aria-controls": $menu.attr("id") });
-  
+
   function setExpanded(expanded) {
     $checkbox.prop("checked", expanded);
     $toggle.attr("aria-expanded", String(expanded));

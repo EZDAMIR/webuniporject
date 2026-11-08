@@ -1,187 +1,153 @@
 # Kamzina 199 Building Materials Store
 
-Midterm project website for a real building materials store at 199 Kamzina Street, Pavlodar.
-Built with Bootstrap 5.3.3 and a thin custom branding stylesheet.
+Coursework website for the building materials store at 199 Kamzina Street, Pavlodar.
+HTML, Bootstrap 5.3.3, a frozen branding stylesheet, plain JavaScript and jQuery 3.7.1.
 
-**Bootstrap version:** 5.3.3 (CDN: jsDelivr)
-**jQuery version:** 3.7.1, full build (CDN: code.jquery.com, with integrity checking).
+Open `index.html` in a browser. There is no build step or backend. Bootstrap and
+jQuery load from CDNs and require internet access. Reviews work independently of
+jQuery; the catalogue, estimate and example-account forms require it.
 
-## Open the site
+## Pages and outcomes
 
-Open `index.html` directly in a browser. Use the navigation menu to move between pages.
-No build step or server is required.
-
-## Pages
-
-- `index.html` — home page: store overview, services, visit information
-- `products.html` — six materials, search, category filtering and cart
-- `order.html` — material quantities, cart totals, delivery fields and a live summary
-- `signin.html` — sign-in form with field validation
-- `signup.html` — registration form with field validation
-
-## Functionality Plan
-
-The responsible student is **Damir Shuitinov**, as recorded in the HTML author metadata.
-This is a static coursework site: account forms check input locally, order requests
-produce a local estimate, and reviews last until the page is reloaded.
-
-| Page | Visitor goal | Function | Result | Responsible student |
-|---|---|---|---|---|
-| `index.html` | Find the store and share an experience | Follow service/visit anchors, use telephone links, validate and add a review with a category and rating | Relevant section or telephone handler opens; a valid review appears with stars and a Pavlodar timestamp; invalid input gets field errors | Damir Shuitinov |
-| `products.html` | Find materials and prepare a cart | Search by name/specification/category, filter/reset, add/increase/decrease/remove/clear items, continue to order | Matching materials and no-results feedback appear; quantities and totals update; the tab's cart transfers to the order page | Damir Shuitinov |
-| `order.html` | Prepare a collection or delivery estimate | Validate every enabled field, toggle delivery fields, update the summary, review or clear the form | A valid request gets a local reference and goods total, then the form resets while keeping the checked summary and cart; missing delivery addresses are rejected; duplicate reviews are blocked until something changes | Damir Shuitinov |
-| `signin.html` | Check sign-in details | Validate email and a nonblank password; clear the form | Errors identify invalid fields; valid input gets confirmation and resets the form; no login/session is created | Damir Shuitinov |
-| `signup.html` | Check registration details | Validate name/email, optional phone, an eight-character password and exact confirmation; clear the form | Invalid fields receive correction hints; valid input gets confirmation and resets the form; no account is created | Damir Shuitinov |
-
-The original mobile navigation label and checkbox are retained. JavaScript
-interactions use the existing Bootstrap classes and prepared CSS states.
-Select menus and the date picker use native browser controls. Shared form
-validation and messages are provided by `Store.bindValidation` and `Store.showMessage`.
-
-## Submission constraints
-
-- Keep the midterm tag unchanged once it has been established.
-- Preserve the HTML interface elements; HTML source edits are limited to deferred JavaScript script links.
-- Preserve all CSS rules; use existing Bootstrap classes and prepared CSS states for JavaScript interactions.
-
-## Quality and submission
-
-The jQuery migration passed 97 browser checks in Chrome, including all five pages
-at 375 and 1280 px, keyboard navigation, empty/invalid/corrected/successful forms,
-dynamic cart controls, effects, reduced motion and malformed saved cart recovery.
-There were no JavaScript console errors, uncaught exceptions, failed requests or
-horizontal document overflow. HTML/JavaScript formatting and JavaScript syntax checks
-also passed. Native operating-system popup appearance, physical touch devices and
-other browser engines were outside that test run.
-
-## Screenshots
-
-### Home page
-
-| Mobile (375 px) | Desktop (1280 px) |
+| Page | Completed visitor outcome |
 |---|---|
-| ![Home — mobile](screenshots/index-375.png) | ![Home — desktop](screenshots/index-desktop.png) |
+| `index.html` | Find store/telephone information; add, filter and sort reviews for the current page session |
+| `products.html` | Search six materials, filter categories, manage quantities/totals and transfer the cart to order |
+| `order.html` | Prepare a collection/delivery estimate with a reference and checked summary; contact the store to arrange it |
+| `signin.html` | Sign in to a demo account created in the same browser tab; sign out from any page |
+| `signup.html` | Create a browser-only demo account with optional phone validation and password confirmation |
 
-### Products and prices
+Account pages use standard sign-up and sign-in wording. Registration creates a browser-only account
+and signs in; sign-in checks its email/password; the shared indicator shows who is
+signed in and offers sign-out. Account records and the session survive navigation
+and reloads within the same tab, using `sessionStorage`. A separate fresh tab has
+its own demo state. Sign-out ends the session while keeping that tab's demo account.
 
-| Mobile (375 px) | Desktop (1280 px) |
-|---|---|
-| ![Products — mobile](screenshots/products-375.png) | ![Products — desktop](screenshots/products-desktop.png) |
+Use sample details and a made-up password. These are not store accounts and confer
+no access permissions. Client state can be inspected or changed using developer
+tools; this is not production authentication. There is no backend or account recovery.
+No raw passwords are saved: records contain a random salt and a PBKDF2-SHA-256
+verifier (600,000 iterations), alongside the demo name/email. Optional telephone
+input is validated but not saved. Do not use real credentials. The forms require
+browser storage and Web Crypto; HTTPS or localhost is recommended. Failures explain
+what is unavailable and do not report successful account creation or login.
 
-### Order and delivery
+The derivation uses the browser's [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/deriveBits)
+and the PBKDF2 work factor in [OWASP's password-storage guidance](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html).
+This choice avoids storing a raw password; it does not turn client-only state into
+a trusted authentication service. Ordering does not require signing in.
 
-| Mobile (375 px) | Desktop (1280 px) |
-|---|---|
-| ![Order — mobile](screenshots/order-375.png) | ![Order — desktop](screenshots/order-desktop.png) |
+Order references are local estimate references, not submitted orders. Delivery fees
+are excluded. Review submission adds a card to the current page and does not publish
+it. Reloading clears reviews. Cart IDs/quantities use tab-scoped `sessionStorage`;
+order contact details are not stored. Demo account names/emails are stored only in that tab.
 
-### Sign in / Sign up
+## Plain JavaScript / jQuery split and ownership
 
-| Sign in — mobile | Sign in — desktop | Sign up — mobile | Sign up — desktop |
-|---|---|---|---|
-| ![Sign in — mobile](screenshots/signin-375.png) | ![Sign in — desktop](screenshots/signin-desktop.png) | ![Sign up — mobile](screenshots/signup-375.png) | ![Sign up — desktop](screenshots/signup-desktop.png) |
+**Responsible student: Damir Shuitinov**, as recorded in the HTML author metadata.
+No additional team ownership is inferred.
 
-## Three visitor journeys
+| Technology | Feature and source | Responsibility |
+|---|---|---|
+| Plain JavaScript only | `js/reviews.js`: review data, generated form/cards/options, validation, errors, counter, category filter, three sort modes, count/average, empty states and all handlers | Damir Shuitinov |
+| jQuery | `js/main.js`: navigation, product objects, cart persistence/calculations/rendering, delegated cart controls, shared validation/messages, demo credentials/session and account presentation | Damir Shuitinov |
+| jQuery | `js/products.js`: generated catalogue, search/category filters, selected rows, delegated add buttons, cart-to-order navigation | Damir Shuitinov |
+| jQuery | `js/order.js`: generated material options, quantity previews, cart, collection/delivery fields, live estimate and request confirmation | Damir Shuitinov |
+| jQuery | `js/signin.js`, `js/signup.js`: registration/sign-in validation, optional phone, password match, asynchronous account/session outcomes and duplicate-submit protection | Damir Shuitinov |
+| Historical reference | `js/old-js-version.js`: three previous functions; never loaded by a page | Damir Shuitinov |
 
-### 1. Browse products and prepare an estimate
+The plain JavaScript review feature is self-contained: no `$`, `jQuery`, `Store`,
+shared jQuery helpers or network data. Its top-level `reviews` array stores actual
+submitted objects; the category/rating/sort arrays and limit object are also near
+the top. `for` loops generate options/cards, conditions select empty/error/success
+states, `selectReviews(items, category, sort)` returns a filtered/sorted copy and
+`averageRating(items)` returns the calculated mean. `renderReview(review)` returns
+a DOM node. Input uses `textContent` and native `addEventListener` handlers.
 
-**Start:** Open `products.html` from the navigation.
+The complete review workflow was tested with both jQuery and `main.js` omitted,
+confirming that its DOM updates and handlers work independently.
 
-1. Search materials or choose a category. Use Reset filters to show all six products.
-2. Add materials to the cart. Increase, decrease or remove items as needed.
-3. Click **Continue to order** and enter customer details and a preferred date.
-4. Select collection, confirm the details and click **Review request**.
+jQuery features retain ready wrappers, traversal, chaining, delegated `.on()`
+handlers and `fadeIn`, `slideToggle`, `slideDown` and `slideUp` effects. Durations
+follow the visitor's reduced-motion preference. No inline event attributes are used.
 
-**End:** A reference and summary appear on the page, with instructions to contact the store.
+## New endterm work
 
----
+This table distinguishes additions in this change from functionality already in
+start-of-task commit `35f954a`. Existing search, cart, validation and review creation
+are **not** claimed as new endterm work. The actual defended baseline still needs
+confirmation before final credit claims.
 
-### 2. Prepare a delivery estimate
+| Previously available | Addition in this change | Observable result |
+|---|---|---|
+| Add a review using jQuery helpers | Complete independent plain JavaScript review workflow | Form, validation, cards and events work with no jQuery/Store |
+| Review list starts blank | Initial “No reviews yet” state | A visitor knows how to start |
+| Submitted review cards only | Category filtering, newest/highest/lowest sorting, visible counts and calculated average | Multiple reviews can be compared; empty categories explain how to recover |
+| Review form clears after success | Explicit Clear review control and page-only lifetime text | Drafts can be cleared without removing submitted cards; persistence is clear |
+| Static product rows/options replaced at runtime | Approved removal of duplicated data markup from HTML | Product rows/options originate from the six shared product objects |
+| Account forms only check details | Browser-only account creation, credential verification, session indicator, sign-out and show/hide-password controls | Registration and sign-in have complete, explicitly limited demo outcomes |
+| Reset request retains cart but leaves required product controls empty | Cart owns request contents; unused chooser rows are optional | Another collection/delivery estimate can be prepared using the retained cart |
+| 320 px navigation brand overflows | Add existing Bootstrap text-wrap/max-width classes through JavaScript | Brand stays inside the viewport without CSS changes |
+| Fixed call link can overlap a form action | Suppress the floating link while its rectangle overlaps an interactive control | Form/cart actions stay reachable; telephone links remain elsewhere |
 
-**Start:** Open `order.html` directly or with a catalogue cart.
+Any partly entered product chooser row is still validated. A request cannot complete
+with an empty cart. Confirmation requires correct enabled fields, consent and an
+address only for delivery. Success clears the form while retaining the checked
+summary/cart; changing details reopens preparation.
 
-1. Choose a material and quantity, then click **Add to cart**.
-2. Enter customer details and today or a future date.
-3. Choose **Delivery within Pavlodar** and enter the required address.
-4. Add any notes, confirm the details and click **Review request**.
+## HTML/CSS freeze
 
-**End:** The live summary shows the materials, contact details, delivery address and goods total.
-Delivery costs are excluded. Correcting fields clears outdated validation errors.
+The default constraint preserves HTML interface elements and all CSS. In this task
+the user explicitly approved **only removing duplicate product rows/options**:
 
----
+- `products.html`: the existing catalogue `tbody` remains, with its four static rows removed.
+- `order.html`: both selects, labels and placeholders remain; the five static product options per select are removed.
+- Product data and controls are generated by JavaScript. No CSS is changed.
+- All page heads link to the included local SVG and ICO favicons.
 
-### 3. Browse the store, check hours, and call directly
+The original defended midterm baseline and deadline checks are deferred at the
+user's request. Existing local tags are preserved, including `endterm`. The latest remote check
+found no pushed `midterm` or `endterm` tags.
 
-**Start:** Open `index.html`.  
-**Steps:**  
-1. Read the "What the shop offers" section.  
-2. Follow the same-page link to **visit information** (the `#visit` anchor).  
-3. Note the opening hours and address: Kamzina Street 199, daily 08:00–18:00.  
-4. Click **Call us** or tap the telephone link.
+## Verification
 
-**End:** The phone app opens with `+7 777 132-04-74` ready to dial.
+All seven JavaScript files (six active and one historical) pass syntax checks;
+all five HTML pages pass formatting and Nu HTML validation. Browser checks covered
+account registration/sign-out/sign-in and its wording, cached Back/Forward session
+presentation, and floating Call-button visibility across mobile and desktop widths.
+The main visitor journeys were also checked in WebKit and Chrome phone emulation.
+Physical-phone and human-only manual testing remain unverified. The current W3C
+result and validated source hashes are in [validation-results.txt](validation-results.txt).
 
----
+Install the existing formatting tool with `npm ci`. Source checks can be rerun
+without dedicated QA scripts:
+
+```sh
+for script in js/*.js; do node --check "$script"; done
+npm run format:check
+npx vnu-jar --errors-only --format text index.html products.html order.html signin.html signup.html
+```
+
+## Visitor journeys
+
+1. **Catalogue to collection estimate:** open Products, search/filter materials, add
+   them, adjust the cart, continue to order, enter contact details/date, confirm and
+   review. Use the displayed estimate to contact the store.
+2. **Delivery estimate:** add materials on Order and delivery or reuse a retained
+   cart, enter details/date, select delivery, correct the required address and
+   review. The goods total excludes delivery charges.
+3. **Reviews:** open Home, submit a category/rating/review, add another, filter or
+   sort and compare the average. Clear only the draft using Clear review; reload
+   to return to the initial empty state.
+4. **Demo account:** register using sample details and a made-up password. Confirm
+   the signed-in indicator, navigate to another page and reload. Sign out, then open
+   the sign-in page and use the same email/password. Try a wrong password and correct
+   it. A fresh tab starts without this account/session.
 
 ## Repository structure
 
-- `css/base.css` — midterm branding and prepared JavaScript states
-- `js/main.js` — shared product data, calculations, cart rendering, messages and validation
-- `js/products.js`, `js/order.js`, `js/signin.js`, `js/signup.js` — page-specific interactions
-- `js/reviews.js` — review form and DOM-generated review cards
-- `js/old-js-version.js` — three original functions for comparison; never loaded by a page
-- `css/damir.css` — styles consolidated into base.css
-- `images/` — store photographs
-- `screenshots/` — responsive screenshots at 375 px, 768 px and desktop width
-- `report/` — assignment reports
-- `tag-checklist.md` — HTML tag evidence
-- `css-checklist.md` — CSS technique evidence
-- `css-removal-list.md` — Bootstrap migration map
-- `ai-log.md` — AI assistance log
-- `validation-results.txt` — W3C validation record (rerun after final edits)
-
-## Assignments 4 and 5
-
-Scripts use strict mode, `const` by default and `let` for changing state. The shared
-product array has six objects with IDs, names, categories, specifications, units and prices.
-`filterProducts` filters materials, `getCartLines` transforms cart data and
-`getCartTotal` aggregates subtotals. Reusable functions call one another; the
-request reference uses `Math.random()`. Page scripts now use jQuery `.on()`.
-
-Only cart IDs and quantities are kept in tab-scoped `sessionStorage`. Account forms
-validate fields. The review form adds submitted reviews to the page with a name,
-category, rating and timestamp. Catalogue entries include pack sizes, units and
-estimated prices.
-
-## jQuery migration
-
-All pages load jQuery 3.7.1 from the CDN before their scripts and use `$(function () { … })`.
-DOM updates and event handlers use jQuery. The commented replacements are `setFieldError`,
-`updateProducts` and `updateMethod`; their originals are in `js/old-js-version.js`, which is
-not loaded by any page. Effects cover confirmations, filters and delivery fields.
-Shared validation preserves HTML constraints, shows inline errors and resets forms after success.
-HTML changes are limited to the CDN script; CSS is unchanged.
-
-## Essential midterm corrections
-
-These decisions are recorded before implementing the corrections. HTML source files
-keep their original interface elements; deferred script links enable interactions. CSS
-supplies shared branding and states. JavaScript reuses the existing catalogue table, two product
-rows, form fields, error areas and order summary, adding only the assignment controls
-with Bootstrap classes and the prepared `d-none`, `is-invalid` and `selected-row` states.
-
-- The review script hides the static quotation aside and provides a review form.
-- Catalogue prices are labelled as estimates, with instructions to confirm current
-  prices and availability with the store.
-- Scripts prevent the original GET submissions and enable accessible custom validation.
-  Order details are presented in a summary with instructions to contact the store.
-- Error elements receive IDs and ARIA associations through JavaScript. Missing feedback
-  elements are generated using Bootstrap's existing validation classes.
-- The original material selectors are populated from the shared six-product array.
-  JavaScript adds quantity previews, Add to cart buttons and controls in the existing
-  summary table. A product must be added before checking the request.
-- Collection is the initial method. Scripts hide and disable delivery fields until
-  delivery is selected, require its address only then, and ask customers to confirm their details.
-
-The quality pass retains the original interface elements and CSS rules. Browser
-checks use local sample data; account and order forms do not create accounts or
-transmit requests to the store.
+- `css/base.css`, `css/damir.css`: existing frozen styles.
+- `js/`: the seven JavaScript source files described above.
+- `images/`, `screenshots/`, `report/`, `sketches/`: existing project assets/evidence.
+- `tag-checklist.md`, `css-checklist.md`, `css-removal-list.md`: earlier assignment evidence.
+- `ai-log.md`: existing assistance log.
