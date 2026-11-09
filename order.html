@@ -144,12 +144,12 @@
           <fieldset class="border rounded p-3 mb-3">
             <legend class="float-none w-auto px-2 fw-bold small">Products</legend>
             <p class="small text-muted mb-3">
-              The unit (bag or sheet) is shown in each product name. Select up to two products from
-              the catalogue. Describe any additional items in the notes field below.
+              The unit (bag or sheet) is shown in each product name. Choose a product and quantity,
+              then click Add to cart. Repeat to add more products to your order.
             </p>
 
-            <!-- Product row 1 — required -->
-            <div class="row g-3 mb-3 pb-3 border-bottom" id="order-row-1">
+            <!-- Product selection -->
+            <div class="row g-3" id="order-row-1">
               <div class="col-12 col-md-7">
                 <label class="form-label" for="product-1">Product</label>
                 <select class="form-select" id="product-1" name="product-1" required>
@@ -172,31 +172,6 @@
                   required
                 />
                 <div class="invalid-feedback">Please enter a quantity of at least 1.</div>
-              </div>
-            </div>
-
-            <!-- Product row 2 — optional -->
-            <div class="row g-3" id="order-row-2">
-              <div class="col-12 col-md-7">
-                <label class="form-label" for="product-2">
-                  Second product <span class="text-muted fw-normal">(optional)</span>
-                </label>
-                <select class="form-select" id="product-2" name="product-2">
-                  <option value="">None</option>
-                </select>
-              </div>
-              <div class="col-12 col-md-5">
-                <label class="form-label" for="qty-2">
-                  Quantity <span class="text-muted fw-normal">(optional)</span>
-                </label>
-                <input
-                  class="form-control"
-                  type="number"
-                  id="qty-2"
-                  name="qty-2"
-                  min="1"
-                  placeholder="1"
-                />
               </div>
             </div>
           </fieldset>

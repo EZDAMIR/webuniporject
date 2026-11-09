@@ -41,15 +41,15 @@ $(function () {
     .find("p")
     .first()
     .text(
-      "Choose a material and a whole quantity from 1 to 999, then click Add to cart. Either row can add materials; the cart holds your selections.",
+      "Choose a material and a whole quantity from 1 to 999, then click Add to cart. Repeat to add more materials; the cart holds your selections.",
     );
   $("#quantity-unit").text("Unit shown in the selected material.");
-  const selections = [1, 2].map(setupSelection);
+  const selection = setupSelection();
   const savedCart = Store.getCart();
   if (savedCart.length) {
-    selections[0].product.val(savedCart[0].id);
-    selections[0].quantity.val(savedCart[0].quantity);
-    selections[0].refresh();
+    selection.product.val(savedCart[0].id);
+    selection.quantity.val(savedCart[0].quantity);
+    selection.refresh();
   }
 
   $summary
@@ -75,24 +75,24 @@ $(function () {
   });
   $result.before($details);
 
-  function setupSelection(index) {
-    const $product = $("#product-" + index).prop("required", false);
-    const $quantity = $("#qty-" + index)
+  function setupSelection() {
+    const $product = $("#product-1").prop("required", false);
+    const $quantity = $("#qty-1")
       .attr({ max: 999, step: 1 })
       .prop("required", false);
-    const $row = $("#order-row-" + index);
-    // These controls add items. The cart owns the request, so unused rows are optional.
+    const $row = $("#order-row-1");
+    // These controls add items. The cart owns the request, so the picker is optional.
     const $placeholder = $product.find("option").first().detach();
     $product.empty().append($placeholder);
     Store.products.forEach(function (item) {
       const label = `${item.name} — ${item.unit}, ${item.specification} — ${Store.formatMoney(item.price)}`;
       Store.makeElement("option", "", label).val(item.id).appendTo($product);
     });
-    const $preview = Store.makeMessage("selection-subtotal-" + index);
+    const $preview = Store.makeMessage("selection-subtotal-1");
     const $add = Store.makeElement("button", "btn btn-danger", "Add to cart").attr({
       type: "button",
-      id: "add-material-" + index,
-      "aria-label": "Add product from row " + index + " to cart",
+      id: "add-material-1",
+      "aria-label": "Add selected product to cart",
     });
     $row.append(Store.makeElement("div", "col-12").append($preview, $add));
 
@@ -179,9 +179,7 @@ $(function () {
             ? ""
             : "Choose today or a future date in Pavlodar.",
       },
-      ...selections.flatMap(function (selection) {
-        return selection.rules(false);
-      }),
+      ...selection.rules(false),
       {
         field: $collection,
         error: $form.find('input[name="order-method"]:checked').length
@@ -293,7 +291,7 @@ $(function () {
         "danger",
         "Your cart is empty. Add at least one material before checking the request.",
       );
-      selections[0].product.trigger("focus");
+      selection.product.trigger("focus");
       return;
     }
     // A real order endpoint must recheck the fields, prices and stock: client checks can be bypassed.
@@ -310,9 +308,7 @@ $(function () {
     // The reset event fires before the values change; refresh them on the next tick.
     setTimeout(function () {
       completed = Boolean(successMessage);
-      selections.forEach(function (selection) {
-        selection.refresh();
-      });
+      selection.refresh();
       updateMethod(false);
       Store.hideMessage($errors);
       if (successMessage) {
