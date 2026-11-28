@@ -210,14 +210,15 @@
   }
 
   // Hide and disable delivery fields when collection is selected.
+  // .find().prop() and .toggleClass() replace native queries, loops and classList.
+  // The equivalent DOM updates are shorter and clearer.
   function updateMethod() {
-    document.getElementById("delivery-block").classList.toggle("d-none", !delivery.checked);
-    document.getElementById("collection-block").classList.toggle("d-none", delivery.checked);
-    document.querySelectorAll("#delivery-block input").forEach(function (field) {
-      field.disabled = !delivery.checked;
-    });
-    address.required = delivery.checked;
-    if (!delivery.checked) {
+    const deliverySelected = $(delivery).is(":checked");
+    $("#delivery-block").toggleClass("d-none", !deliverySelected).find("input")
+      .prop("disabled", !deliverySelected);
+    $("#collection-block").toggleClass("d-none", deliverySelected);
+    $(address).prop("required", deliverySelected);
+    if (!deliverySelected) {
       Store.setFieldError(address, "");
     }
   }

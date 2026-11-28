@@ -88,17 +88,18 @@
     return row;
   }
 
+  // .val(), .empty().append() and .toggleClass() replace native value/DOM operations.
+  // Updating the list is shorter and clearer.
   function updateProducts() {
-    const matches = Store.filterProducts(Store.products, search.value, category.value);
-    // map() creates a row per match; replace the previous results.
-    list.replaceChildren(...matches.map(renderProduct));
+    const matches = Store.filterProducts(Store.products, $(search).val(), $(category).val());
+    $(list).empty().append(matches.map(renderProduct));
     Store.showMessage(
       count,
       "info",
       matches.length + " of " + Store.products.length + " materials shown.",
     );
-    empty.classList.toggle("d-none", matches.length !== 0);
-    clearSearch.classList.toggle("d-none", search.value === "");
+    $(empty).toggleClass("d-none", matches.length !== 0);
+    $(clearSearch).toggleClass("d-none", $(search).val() === "");
     Store.hideMessage(result);
     updateSelectedRows();
   }
