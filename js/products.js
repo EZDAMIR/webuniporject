@@ -1,123 +1,125 @@
 "use strict";
 
-(function () {
-  const table = document.querySelector("main table");
-  const section = table.closest("section");
-  const list = table.tBodies[0];
-  list.id = "product-list";
-  // Generate the search and category controls above the existing table.
-  const controls = Store.makeElement("div", "row g-3 align-items-end mb-3");
-  const searchGroup = Store.makeElement("div", "col-12 col-md-6");
-  const searchLabel = Store.makeElement("label", "form-label", "Search materials");
-  searchLabel.htmlFor = "product-search";
-  const search = Store.makeElement("input", "form-control");
-  search.type = "search";
-  search.id = "product-search";
-  search.placeholder = "Name, specification or category";
-  const clearSearch = Store.makeElement(
+// jQuery 3.7.1: ready waits for the DOM and shared Store initialization.
+$(function () {
+  const $table = $("main table");
+  const $section = $table.closest("section");
+  const $list = $table.find("tbody").attr("id", "product-list");
+  const $controls = Store.makeElement("div", "row g-3 align-items-end mb-3");
+  $controls.attr("id", "product-filters");
+  const $search = Store.makeElement("input", "form-control").attr({
+    type: "search",
+    id: "product-search",
+    placeholder: "Name, specification or category",
+    "aria-controls": "product-list",
+  });
+  const $clearSearch = Store.makeElement(
     "button",
     "btn btn-outline-secondary d-none",
     "Clear search",
+  ).attr("type", "button");
+  const $searchGroup = Store.makeElement("div", "col-12 col-md-6").append(
+    Store.makeElement("label", "form-label", "Search materials").attr("for", "product-search"),
+    Store.makeElement("div", "input-group").append($search, $clearSearch),
   );
-  clearSearch.type = "button";
-  const searchControls = Store.makeElement("div", "input-group");
-  searchControls.append(search, clearSearch);
-  searchGroup.append(searchLabel, searchControls);
-  const categoryGroup = Store.makeElement("div", "col-12 col-md-4");
-  const categoryLabel = Store.makeElement("label", "form-label", "Category");
-  categoryLabel.htmlFor = "product-category";
-  const category = Store.makeElement("select", "form-select");
-  category.id = "product-category";
-  const all = Store.makeElement("option", "", "All categories");
-  all.value = "all";
-  category.append(all);
-  categoryGroup.append(categoryLabel, category);
-  search.setAttribute("aria-controls", list.id);
-  category.setAttribute("aria-controls", list.id);
-  const resetGroup = Store.makeElement("div", "col-12 col-md-2");
-  const reset = Store.makeElement("button", "btn btn-outline-secondary", "Reset filters");
-  reset.type = "button";
-  resetGroup.append(reset);
-  controls.append(searchGroup, categoryGroup, resetGroup);
-  const count = Store.makeMessage("product-count");
-  const result = Store.makeMessage("catalogue-message");
-  const empty = Store.makeMessage("products-empty");
-  Store.showMessage(empty, "info", "No materials match. Try another term or use Reset filters.");
-  section.querySelector("h2").after(controls, count, result, empty);
-  const actionHeading = Store.makeElement("th", "", "Action");
-  actionHeading.scope = "col";
-  table.tHead.rows[0].append(actionHeading);
-  table.caption.textContent = "Materials and estimated prices";
-  section.querySelector("small").textContent =
-    "Prices are per listed unit. Confirm current prices and availability with the store.";
-  document.querySelector("h1").textContent = "Products and estimated prices";
+  const $category = Store.makeElement("select", "form-select")
+    .attr({ id: "product-category", "aria-controls": "product-list" })
+    .append(Store.makeElement("option", "", "All categories").val("all"));
+  const $categoryGroup = Store.makeElement("div", "col-12 col-md-4").append(
+    Store.makeElement("label", "form-label", "Category").attr("for", "product-category"),
+    $category,
+  );
+  const $reset = Store.makeElement("button", "btn btn-outline-secondary", "Reset filters");
+  $reset.attr("type", "button");
+  $controls.append(
+    $searchGroup,
+    $categoryGroup,
+    Store.makeElement("div", "col-12 col-md-2").append($reset),
+  );
+  const $filterToggle = Store.makeElement(
+    "button",
+    "btn btn-outline-secondary mb-3",
+    "Hide filters",
+  ).attr({
+    type: "button",
+    "aria-controls": "product-filters",
+    "aria-expanded": "true",
+  });
+  const $count = Store.makeMessage("product-count");
+  const $result = Store.makeMessage("catalogue-message");
+  const $empty = Store.makeMessage("products-empty");
+  Store.showMessage($empty, "info", "No materials match. Try another term or use Reset filters.");
+  $section.find("h2").after($filterToggle, $controls, $count, $result, $empty);
+  $table.find("thead tr").append(Store.makeElement("th", "", "Action").attr("scope", "col"));
+  $table.find("caption").text("Materials and estimated prices");
+  // Use .html() only for trusted constant markup; insert user data with .text().
+  $section
+    .find("small")
+    .first()
+    .html(
+      "Prices are per listed unit. <strong>Confirm current prices and availability with the store.</strong>",
+    );
+  $("h1").text("Products and estimated prices");
 
-  const cartSection = Store.makeElement("section", "border rounded p-3 my-4");
-  cartSection.append(Store.makeElement("h2", "", "Your cart"));
-  cartSection.append(
+  const $cartSection = Store.makeElement("section", "border rounded p-3 my-4").append(
+    Store.makeElement("h2", "", "Your cart"),
     Store.makeElement(
       "p",
       "small text-muted",
       "Quantities are whole units from 1 to 999. At one unit, use Remove to delete an item. Only product IDs and quantities are kept for this browser tab.",
     ),
   );
-  section.after(cartSection);
-  const checkout = Store.makeElement("button", "btn btn-danger", "Continue to order");
-  checkout.type = "button";
-  Store.setupCart(cartSection, checkout, true);
+  $section.after($cartSection);
+  const $checkout = Store.makeElement("button", "btn btn-danger", "Continue to order");
+  $checkout.attr("type", "button");
+  Store.setupCart($cartSection, $checkout, true);
 
   function renderProduct(product) {
-    const row = Store.makeElement("tr", "");
-    // Store the product ID on generated elements for later lookups.
-    row.dataset.productId = product.id;
-    const name = Store.makeElement("th", "", product.name);
-    name.scope = "row";
-    const actions = Store.makeElement("td", "");
-    const button = Store.makeElement("button", "btn btn-danger btn-sm", "Add to cart");
-    button.type = "button";
-    button.dataset.productId = product.id;
-    button.setAttribute("aria-label", "Add " + product.name + " to cart");
-    actions.append(button);
-    row.append(
-      name,
+    const $row = Store.makeElement("tr", "").attr("data-product-id", product.id);
+    const $button = Store.makeElement("button", "btn btn-danger btn-sm", "Add to cart").attr({
+      type: "button",
+      "data-product-id": product.id,
+      "aria-label": "Add " + product.name + " to cart",
+    });
+    $row.append(
+      Store.makeElement("th", "", product.name).attr("scope", "row"),
       Store.makeElement("td", "", product.specification),
       Store.makeElement("td", "", product.unit),
       Store.makeElement("td", "text-nowrap", Store.formatMoney(product.price)),
-      actions,
+      Store.makeElement("td", "").append($button),
     );
-    return row;
+    return $row;
   }
 
-  // .val(), .empty().append() and .toggleClass() replace native value/DOM operations.
-  // Updating the list is shorter and clearer.
+  // Rewrite 2: .val(), .empty().append() and .toggleClass() replace value,
+  // replaceChildren and classList.toggle; updating the list is shorter and clearer.
   function updateProducts() {
-    const matches = Store.filterProducts(Store.products, $(search).val(), $(category).val());
-    $(list).empty().append(matches.map(renderProduct));
+    const matches = Store.filterProducts(Store.products, $search.val(), $category.val());
+    $list.empty().append(matches.map(renderProduct)); // Build rows from the product array.
     Store.showMessage(
-      count,
+      $count,
       "info",
       matches.length + " of " + Store.products.length + " materials shown.",
     );
-    $(empty).toggleClass("d-none", matches.length !== 0);
-    $(clearSearch).toggleClass("d-none", $(search).val() === "");
-    Store.hideMessage(result);
+    $empty.toggleClass("d-none", matches.length !== 0);
+    $clearSearch.toggleClass("d-none", $search.val() === "");
+    Store.hideMessage($result);
     updateSelectedRows();
   }
 
-  // some() checks whether each displayed product is in the cart.
   function updateSelectedRows() {
     const cart = Store.getCart();
-    list.querySelectorAll("tr").forEach(function (row) {
-      row.classList.toggle(
+    $list.find("tr").each(function () {
+      const $row = $(this);
+      $row.toggleClass(
         "selected-row",
         cart.some(function (item) {
-          return item.id === row.dataset.productId;
+          return item.id === $row.attr("data-product-id");
         }),
       );
     });
   }
 
-  // Set removes duplicate categories before building dropdown options.
   const categories = [
     ...new Set(
       Store.products.map(function (product) {
@@ -126,44 +128,44 @@
     ),
   ];
   categories.forEach(function (name) {
-    const option = Store.makeElement("option", "", name);
-    option.value = name;
-    category.append(option);
+    Store.makeElement("option", "", name).val(name).appendTo($category);
   });
-
-  // Wait for composed keyboard input to finish before filtering.
-  search.addEventListener("input", function (event) {
-    if (!event.isComposing) {
-      updateProducts();
-    }
-  });
-  search.addEventListener("compositionend", updateProducts);
-  category.addEventListener("change", updateProducts);
-  clearSearch.addEventListener("click", function () {
-    search.value = "";
+  $search
+    .on("input", function (event) {
+      if (!event.originalEvent?.isComposing) updateProducts();
+    })
+    .on("compositionend", updateProducts);
+  $category.on("change", updateProducts);
+  $clearSearch.on("click", function () {
+    $search.val("");
     updateProducts();
-    search.focus();
+    $search.trigger("focus");
   });
-  reset.addEventListener("click", function () {
-    search.value = "";
-    category.value = "all";
+  $reset.on("click", function () {
+    $search.val("");
+    $category.val("all");
     updateProducts();
-    Store.showMessage(result, "info", "Filters reset. All six materials are shown.");
-    search.focus();
+    Store.showMessage($result, "info", "Filters reset. All six materials are shown.");
+    $search.trigger("focus");
   });
-  // Clicks bubble to this parent, even after buttons are replaced.
-  list.addEventListener("click", function (event) {
-    const button = event.target.closest("button[data-product-id]");
-    if (!button) {
-      return;
-    }
-    const response = Store.addToCart(button.dataset.productId, 1);
-    Store.showMessage(result, response.success ? "success" : "danger", response.message);
+  $filterToggle.on("click", function () {
+    const $button = $(this);
+    const expanded = $button.attr("aria-expanded") !== "true";
+    $button
+      .attr("aria-expanded", String(expanded))
+      .text(expanded ? "Hide filters" : "Show filters");
+    $controls.toggleClass("d-none", !expanded);
   });
-  checkout.addEventListener("click", function () {
+  // The existing tbody catches clicks on new buttons after .empty().append().
+  // Direct handlers on the original buttons would not transfer to new elements.
+  $list.on("click", "button[data-product-id]", function () {
+    const $button = $(this);
+    const response = Store.addToCart($button.attr("data-product-id"), 1);
+    Store.showMessage($result, response.success ? "success" : "danger", response.message);
+  });
+  $checkout.on("click", function () {
     window.location.href = "order.html#order-form";
   });
-  // Store sends cartchange after each cart update.
-  document.addEventListener("cartchange", updateSelectedRows);
+  $(document).on("cartchange", updateSelectedRows);
   updateProducts();
-})();
+});
