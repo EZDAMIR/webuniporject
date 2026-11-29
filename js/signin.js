@@ -24,7 +24,7 @@ $(function () {
     // Without preventDefault, GET would put the password in the URL and reload the page.
     event.preventDefault();
     if (!validate()) return;
-    $password.val("").attr("type", "password");
+    $form.trigger("reset");
     Store.showMessage($result, "success", "Your details have been checked.");
   });
 });

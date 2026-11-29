@@ -36,7 +36,10 @@ $(function () {
     setExpanded(false);
   });
 
-
+  // Respect the current reduced-motion preference for every effect.
+  function effectDuration(milliseconds) {
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : milliseconds;
+  }
 
   // Product objects are the shared source for names, units and prices.
   const products = [
@@ -169,12 +172,23 @@ $(function () {
   }
 
   function showMessage($element, type, message) {
-    $element.removeClass("d-none alert-danger alert-success alert-info")
-      .addClass("alert alert-" + type).text(message);
+    const wasHidden = $element.hasClass("d-none");
+    $element
+      .stop(true, true)
+      .removeClass("d-none alert-danger alert-success alert-info")
+      .addClass("alert alert-" + type)
+      .text(message);
+    if (wasHidden && type === "success") {
+      // Effect 1: fade in confirmation over 180 ms.
+      $element.hide().fadeIn(effectDuration(180), function () {
+        // The completion callback removes temporary animation styles.
+        $(this).removeAttr("style");
+      });
+    }
   }
 
   function hideMessage($element) {
-    $element.addClass("d-none").text("");
+    $element.stop(true, true).addClass("d-none").text("").removeAttr("style");
   }
 
   // Rewrite 1: .siblings()/.parent().find(), .toggleClass(), .attr() and .text() replace
@@ -215,21 +229,74 @@ $(function () {
     return first === undefined;
   }
 
+  function trimValues($form) {
+    const $fields = $form
+      .find("input, textarea")
+      .not(":checkbox, :radio, :button, :submit, :reset");
+    $fields.each(function () {
+      const $field = $(this);
+      $field.val(String($field.val()).trim());
+    });
+  }
 
-
-
+  // Read native constraint flags through .prop(), preserving HTML validation attributes.
+  function getHTMLError($field) {
+    const validity = $field.prop("validity");
+    const value = String($field.val() || "").trim();
+    const type = $field.attr("type");
+    if (validity.badInput) return "Enter a valid number or date.";
+    if (validity.valueMissing) return "Complete this field.";
+    if (!value) return "";
+    if (type === "email" && !validEmail(value)) {
+      return "Enter a valid email address, such as name@example.com.";
+    }
+    if (type === "tel" && !validPhone(value)) {
+      return "Enter 10–15 digits with an optional leading +, spaces, brackets or hyphens.";
+    }
+    if (validity.rangeUnderflow || validity.rangeOverflow || validity.stepMismatch) {
+      return type === "date"
+        ? "Choose today or a future date in Pavlodar."
+        : "Enter a whole quantity from 1 to 999.";
+    }
+    const minLength = $field.attr("minlength");
+    const maxLength = $field.attr("maxlength");
+    if (minLength && value.length < Number(minLength)) {
+      return "Use at least " + minLength + " characters.";
+    }
+    if (maxLength && value.length > Number(maxLength)) {
+      return "Use no more than " + maxLength + " characters.";
+    }
+    if (validity.patternMismatch) return "Use the format shown for this field.";
+    return "";
+  }
 
   function bindValidation($form, getRules, $result) {
     let submitted = false;
     $form.prop("noValidate", true);
     $result.attr({ "aria-live": "polite", "aria-atomic": "true" });
-    getRules().forEach(function (rule) {
+
+    function currentRules() {
+      const customRules = getRules();
+      const rules = [];
+      const $fields = $form
+        .find("input, select, textarea")
+        .not(":disabled, :button, :submit, :reset");
+      $fields.each(function () {
+        const $field = $(this);
+        const custom = customRules.find(function (rule) {
+          return rule.field.is($field);
+        });
+        rules.push({ field: $field, error: custom?.error || getHTMLError($field) });
+      });
+      return rules;
+    }
+    currentRules().forEach(function (rule) {
       setFieldError(rule.field, "");
     });
     $form.on("input change", function (event) {
       if (event.originalEvent?.isComposing) return;
       hideMessage($result);
-      if (submitted && !validateFields(getRules(), false)) {
+      if (submitted && !validateFields(currentRules(), false)) {
         showMessage($result, "danger", "Please correct the highlighted fields.");
       }
     });
@@ -242,7 +309,8 @@ $(function () {
     });
     return function () {
       submitted = true;
-      const valid = validateFields(getRules(), true);
+      trimValues($form);
+      const valid = validateFields(currentRules(), true);
       if (!valid) showMessage($result, "danger", "Please correct the highlighted fields.");
       return valid;
     };
@@ -513,11 +581,13 @@ $(function () {
     setFieldError,
     validateFields,
     bindValidation,
+    trimValues,
     validEmail,
     validPhone,
     todayInPavlodar,
     addToCart,
     getCart,
     clearCart,
+    effectDuration,
   };
 });
