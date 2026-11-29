@@ -1,6 +1,6 @@
 "use strict";
 
-// jQuery 3.7.1: ready waits for the DOM; reviews last until the page reloads.
+// jQuery 3.7.1: add the review form once the DOM is ready.
 $(function () {
   $("#visit aside").addClass("d-none");
   const minLength = 20;
@@ -44,7 +44,6 @@ $(function () {
       Store.makeElement("span", "visually-hidden", review.rating + " out of 5 stars"),
     );
     $body.append($stars);
-    // makeElement uses .text() so review content cannot execute as HTML.
     $body.append(Store.makeElement("p", "card-text flex-grow-1 mb-2 text-break", review.text));
     const $footer = Store.makeElement("footer", "small text-muted mt-auto");
     $footer.append(
@@ -161,7 +160,7 @@ $(function () {
       $counter.text("0 / " + maxLength);
     });
     $form.on("submit", function (event) {
-      // Without preventDefault, the form would submit and the new review would disappear on reload.
+      // A normal submit would reload the page and discard the reviews kept in memory.
       event.preventDefault();
       if (!validate()) return;
       const review = {

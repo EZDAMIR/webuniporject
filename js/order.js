@@ -1,6 +1,6 @@
 "use strict";
 
-// jQuery 3.7.1: ready waits for the DOM; main.js initializes shared helpers first.
+// jQuery 3.7.1: wait for the form and summary elements.
 $(function () {
   const $form = $("#order-form");
   const $result = $("#order-confirmation");
@@ -79,7 +79,7 @@ $(function () {
     const $product = $("#product-" + index);
     const $quantity = $("#qty-" + index).attr({ max: 999, step: 1 });
     const $row = $("#order-row-" + index);
-    // Preserve required/min from HTML; the second row remains optional.
+    // Keep the HTML constraints; an unused second row is allowed.
     const $placeholder = $product.find("option").first().detach();
     $product.empty().append($placeholder);
     Store.products.forEach(function (item) {
@@ -203,8 +203,8 @@ $(function () {
     ];
   }
 
-  // Rewrite 3: .find().prop() and .toggleClass() replace querySelectorAll and classList.
-  // The DOM code is clearer; slideDown/slideUp make the whole function longer.
+  // .find().prop() replaces the input loop; .toggleClass() replaces classList.toggle().
+  // The state changes are easier to read, but the added animations make this version longer.
   function updateMethod(animate) {
     const deliverySelected = $delivery.is(":checked");
     const $block = $("#delivery-block");
@@ -217,9 +217,9 @@ $(function () {
         Store.setFieldError($(this), "");
       });
     }
+    // Finish the previous animation before handling a quick change of delivery method.
     $block.stop(true, true);
     if (animate && wasHidden === deliverySelected) {
-      // Effect 3: reveal the relevant fields; .stop() prevents animation queues.
       if (deliverySelected) {
         $block
           .removeClass("d-none")
@@ -255,8 +255,8 @@ $(function () {
       $("#summary-method").text("Collection: Kamzina Street 199, Pavlodar. No delivery charge.");
     }
     $("#summary-total").text("Goods total: " + Store.formatMoney(Store.getCartTotal(cart)));
-    // Three-method chain: .text() updates the content; .toggleClass() hides empty notes
-    // with the existing d-none class; .attr() exposes that state to screen readers.
+    // .text() sets the notes, .toggleClass() hides them when empty,
+    // and .attr() keeps aria-hidden in sync for screen readers.
     $("#summary-notes")
       .text("Notes: " + $notes.val().trim())
       .toggleClass("d-none", $notes.val().trim() === "")
@@ -264,7 +264,7 @@ $(function () {
     $submit.prop("disabled", cart.length === 0 || completed);
   }
 
-  // Update the delivery method before live validation so hidden fields are disabled.
+  // Disable hidden delivery fields before the form validation handler runs.
   $form.on("change", 'input[name="order-method"]', function () {
     updateMethod(true);
   });
@@ -281,7 +281,7 @@ $(function () {
     updateSummary();
   });
   $form.on("submit", function (event) {
-    // Without preventDefault, GET would expose contact details in the URL and reload the page.
+    // Prevent the GET request, which would put contact details in the URL and reload the page.
     event.preventDefault();
     if (completed) return;
     if (!validate()) return;
@@ -294,8 +294,8 @@ $(function () {
       selections[0].product.trigger("focus");
       return;
     }
-    // The server must recheck all fields, prices and stock because client JS can be bypassed.
-    // This page only validates locally; it does not send a request to the store.
+    // A real order endpoint must recheck the fields, prices and stock: client checks can be bypassed.
+    // This form only prepares a local summary.
     completed = true;
     updateSummary();
     const reference = Store.createReference("REQ");
@@ -305,7 +305,7 @@ $(function () {
     $form.trigger("reset", [message]);
   });
   $form.on("reset", function (event, successMessage) {
-    // Native reset restores values after the event; wait before updating dependent UI.
+    // The reset event fires before the values change; refresh them on the next tick.
     setTimeout(function () {
       completed = Boolean(successMessage);
       selections.forEach(function (selection) {
@@ -314,7 +314,7 @@ $(function () {
       updateMethod(false);
       Store.hideMessage($errors);
       if (successMessage) {
-        // Keep the validated summary visible after clearing the form fields.
+        // Leave the checked summary visible while the form fields are cleared.
         $submit.prop("disabled", true);
         Store.showMessage($result, "success", successMessage);
       } else {

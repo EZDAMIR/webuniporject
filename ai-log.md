@@ -35,3 +35,20 @@
 33. What does `btn-lg` and `btn-sm` change about a Bootstrap button compared to a plain `btn`?
 34. How do Bootstrap responsive utility classes like `text-center text-md-start` differ from writing a media query?
 35. Why must the Bootstrap JS bundle be placed at the end of `<body>` rather than in `<head>`?
+36. How do I load jQuery from a CDN and run page scripts after the DOM is ready?
+37. How can I rewrite existing functions with jQuery selectors, DOM traversal and method chains?
+38. How do delegated `.on()` handlers work with dynamically generated cards and buttons?
+39. How can I validate every form field and use jQuery effects with completion callbacks?
+40. How can I simplify these changes and keep all code comments in English?
+
+## jQuery review — 29 November 2026
+
+41. Which comments should I keep, and which ones just repeat the code?
+42. How can a comment explain why something is done instead of describing each line?
+43. What is the difference between a jQuery object and a DOM element?
+44. How do `.find()`, `.closest()`, `.parent()` and `.siblings()` differ?
+45. What does `$(this)` refer to inside a jQuery event handler?
+46. What is event bubbling, and how does `.on()` use it for event delegation?
+47. How does method chaining work in jQuery?
+48. When should I use `.text()`, `.html()`, `.val()`, `.attr()` or `.prop()`?
+49. What do `.stop(true, true)` and an animation completion callback do?

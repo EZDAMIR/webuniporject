@@ -2,13 +2,12 @@
 
 let Store;
 
-// jQuery 3.7.1, full build with effects. ready waits for the DOM
-// so selectors and .on() handlers run after the page elements exist.
+// jQuery 3.7.1 (full build). Wait for the DOM before binding handlers.
 $(function () {
-  const $toggle = $(".navbar-toggler"); // class selector
-  const $checkbox = $("#nav-toggle"); // ID selector
+  const $toggle = $(".navbar-toggler");
+  const $checkbox = $("#nav-toggle");
   const $menu = $("#main-nav");
-  const $navigation = $("nav"); // tag selector
+  const $navigation = $("nav");
   $toggle.attr({ tabindex: 0, role: "button", "aria-controls": $menu.attr("id") });
 
   function setExpanded(expanded) {
@@ -21,7 +20,7 @@ $(function () {
   });
   $toggle.on("keydown", function (event) {
     if (!event.originalEvent?.isComposing && (event.key === "Enter" || event.key === " ")) {
-      // preventDefault stops Space from scrolling and avoids duplicate keyboard activation.
+      // Stop Space from scrolling the page when it toggles the menu.
       event.preventDefault();
       $checkbox.trigger("click");
     }
@@ -36,12 +35,11 @@ $(function () {
     setExpanded(false);
   });
 
-  // Respect the current reduced-motion preference for every effect.
+  // Recheck this each time so a changed motion preference takes effect without reloading.
   function effectDuration(milliseconds) {
     return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : milliseconds;
   }
 
-  // Product objects are the shared source for names, units and prices.
   const products = [
     {
       id: "cement-m400",
@@ -92,21 +90,19 @@ $(function () {
       price: 4200,
     },
   ];
-  // sessionStorage carries cart selections between pages in this tab.
+  // Keep the cart between pages in this tab.
   const cartKey = "kamzina-demo-cart";
   const maxQuantity = 999;
   let storageAvailable = true;
   let cart = loadCart();
   let cartView = null;
 
-  // find() returns the first match, or undefined if none exists.
   function findProduct(id) {
     return products.find(function (product) {
       return product.id === id;
     });
   }
 
-  // Combine category filtering with case-insensitive text search.
   function filterProducts(items, query, category) {
     const search = query.trim().toLowerCase();
     return items.filter(function (product) {
@@ -129,7 +125,6 @@ $(function () {
     return price * quantity;
   }
 
-  // map() turns selections into product details and subtotals.
   function getCartLines(items) {
     return items.map(function (item) {
       const product = findProduct(item.id);
@@ -141,23 +136,21 @@ $(function () {
     });
   }
 
-  // reduce() adds the subtotals, starting from zero.
   function getCartTotal(items) {
     return getCartLines(items).reduce(function (total, line) {
       return total + line.subtotal;
     }, 0);
   }
 
-  // Generate a display reference; uniqueness is not guaranteed.
+  // This local reference is not an order number issued by the store.
   function createReference(prefix) {
     return prefix + "-" + Math.floor(100000 + Math.random() * 900000);
   }
 
-  // Return a jQuery object so callers use the same DOM API.
   function makeElement(tag, classes, text) {
     const $element = $("<" + tag + ">").addClass(classes);
     if (text !== undefined) {
-      $element.text(text); // Insert user data as plain text.
+      $element.text(text); // Names and reviews must be inserted as text, not HTML.
     }
     return $element;
   }
@@ -179,9 +172,8 @@ $(function () {
       .addClass("alert alert-" + type)
       .text(message);
     if (wasHidden && type === "success") {
-      // Effect 1: fade in confirmation over 180 ms.
       $element.hide().fadeIn(effectDuration(180), function () {
-        // The completion callback removes temporary animation styles.
+        // Remove the fade styles after completion so classes control visibility again.
         $(this).removeAttr("style");
       });
     }
@@ -191,8 +183,8 @@ $(function () {
     $element.stop(true, true).addClass("d-none").text("").removeAttr("style");
   }
 
-  // Rewrite 1: .siblings()/.parent().find(), .toggleClass(), .attr() and .text() replace
-  // manual DOM lookup, classList and textContent; clearer, but ARIA handling keeps the length similar.
+  // .siblings()/.parent().find(), .toggleClass(), .attr() and .text() replace native DOM calls.
+  // About the same length, but easier to follow with one API for field errors.
   function setFieldError($field, message) {
     const feedbackId = $field.attr("id") + "-feedback";
     let $feedback = $("#" + feedbackId);
@@ -239,7 +231,7 @@ $(function () {
     });
   }
 
-  // Read native constraint flags through .prop(), preserving HTML validation attributes.
+  // Use the HTML constraints too, including required, min, max and step.
   function getHTMLError($field) {
     const validity = $field.prop("validity");
     const value = String($field.val() || "").trim();
@@ -341,14 +333,13 @@ $(function () {
       .join("-");
   }
 
-  // Parse saved JSON; recover with an empty cart if reading or parsing fails.
+  // Blocked storage or invalid saved JSON should not stop the catalogue from loading.
   function loadCart() {
     try {
       const saved = JSON.parse(sessionStorage.getItem(cartKey) || "[]");
       if (!Array.isArray(saved)) {
         return [];
       }
-      // Discard unknown products, invalid quantities and duplicate IDs.
       const ids = new Set();
       return saved
         .filter(function (item) {
@@ -385,7 +376,7 @@ $(function () {
     const existing = cart.find(function (item) {
       return item.id === id;
     });
-    // Check the combined quantity when the product is already in the cart.
+    // Apply the limit to the existing quantity plus the amount being added.
     const totalQuantity = quantity + (existing ? existing.quantity : 0);
     if (!product || !validQuantity(quantity) || !validQuantity(totalQuantity)) {
       return {
@@ -431,7 +422,7 @@ $(function () {
     return saveCart("Cart cleared. Choose materials to start again.");
   }
 
-  // Return copies so callers cannot accidentally modify the internal cart.
+  // Callers may read the cart, but should not change its internal objects.
   function getCart() {
     return cart.map(function (item) {
       return { id: item.id, quantity: item.quantity };
@@ -534,8 +525,8 @@ $(function () {
       checkout: $checkout,
       requiresStorage,
     };
-    // Delegate to a stable parent because renderCart() replaces the rows.
-    // Direct handlers on old buttons would not handle buttons created later.
+    // renderCart() replaces the buttons; direct handlers would be lost.
+    // Handle clicks on the section so the replacement buttons still work.
     $section.on("click", "button[data-cart-action]", function () {
       const $button = $(this);
       if ($button.prop("disabled")) return;
